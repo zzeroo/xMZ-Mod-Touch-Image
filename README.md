@@ -22,8 +22,10 @@ docker run --rm $BASEIMAGE cat /etc/issue
 ##Create Image from base-image
 
 ```
-export base_image=base-image-sid
-export image=stage1-image.img
+# cp custom_image/ubuntu-vivid-custom-image.img-stage1 stage1-image.img
+cp stage1-image.img stage2-image.img
+export base_image=base-image-sid-0.4.1
+export image=stage2-image.img
 export card=/dev/loop
 export part="1"
 sudo losetup /dev/loop${part}0 ${image}
@@ -35,13 +37,12 @@ sudo mount ${card}${part}2 ${mnt}
 sudo rsync -av ${base_image}/* ${mnt}
 sudo umount ${mnt}
 sudo losetup -d ${card}${part}{0,1,2}
-mv stage1-image.img stage2-image.img
 ```
 
 ```
-# umount /dev/sdd{1,2}
+# sudo umount /dev/sdd{1,2}
 export image=stage2-image.img
-dd if=${image} | pv | sudo dd of=/dev/sdc bs=1M
+dd if=${image} | pv | sudo dd of=/dev/sdd bs=1M
 ```
 
 ```
