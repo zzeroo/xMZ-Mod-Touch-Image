@@ -31,8 +31,19 @@ echo "Script version: ${SCRIPTVERSION}"
 
 # This function creates an image
 function create_image {
-dd if=/dev/zero of="${OUTPUT_DIR}/${IMAGE_NAME}" bs=1024 count=$[$IMAGE_SIZE_MB*1024]
+if [[ -z "${OUTPUT_DIR}/${IMAGE_NAME}" ]] || [[ -f "${OUTPUT_DIR}/${IMAGE_NAME}" && x"$force" = "xtrue" ]]; then
+  dd if=/dev/zero of="${OUTPUT_DIR}/${IMAGE_NAME}" bs=1024 count=$[$IMAGE_SIZE_MB*1024]
+else
+  echo "The file ${OUTPUT_DIR}/${IMAGE_NAME} already exist!"
+  echo "Overwrite with -f parameter."
+fi
 }
+
+# Create a loop device
+function create_loop_device {
+sudo losetup /dev/loop10 "${OUTPUT_DIR}/${IMAGE_NAME}"
+}
+
 
 
 # Main part of the script
@@ -44,8 +55,8 @@ if [[ $? != 4 ]]; then
 	exit 1
 fi
 
-SHORT=o:hv
-LONG=output:,help,verbose
+SHORT=o:fhv
+LONG=output:,force,help,verbose
 
 PARSED=`getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@"`
 if [[ $? != 0 ]]; then
@@ -63,6 +74,10 @@ while true; do
 			verbose=true
 			shift # past argument
 			;;
+		-f|--force)
+			force=true
+			shift # past argument
+			;;
 		-h|--help)
 			show_help
 			shift # past argument
@@ -78,8 +93,11 @@ done
 # If output dir is not given as parameter, use the current dir .
 [ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="."
 
+
 create_image
 
+exit 666
+create_loop_device
 
 
 
