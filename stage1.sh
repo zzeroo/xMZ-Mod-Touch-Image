@@ -27,7 +27,7 @@ debug() {
 		echo ">> $1"
 		eval "$1"
 	else
-		eval "$1" 2&>1
+		eval "$1" &>/dev/null
 	fi
 	# each command follows sn empty line
 	echo
