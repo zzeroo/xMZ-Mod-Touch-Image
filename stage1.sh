@@ -26,11 +26,11 @@ debug() {
 	if [[ x"${verbose}" == "xtrue" ]]; then
 		echo ">> $1"
 		eval "$1"
+		# in verbose mode each command follows an empty line
+		echo
 	else
 		eval "$1" &>/dev/null
 	fi
-	# each command follows sn empty line
-	echo
 }
 
 # Show help, how is the programm called
@@ -91,15 +91,22 @@ create_partitions(){
 # Create loop devices with offset
 create_loop_device_with_offset(){
 	echo_b "Create loop devices with offset ..."
-	debug "sudo losetup --offset $[2048 * 512]  /dev/loop11 \"${OUTPUT_DIR}/${IMAGE_NAME}\""
-	debug "sudo losetup --offset $[43008 * 512] /dev/loop12 \"${OUTPUT_DIR}/${IMAGE_NAME}\""
+	debug "sudo losetup --offset $[2048 * 512]  /dev/loop11 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || exit 1"
+	debug "sudo losetup --offset $[43008 * 512] /dev/loop12 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || exit 1"
 }
 # Make the file systems
 make_filesystems(){
 	echo_b "Make files systems on the loop devices ..."
-	debug "sudo mkfs.vfat /dev/loop11"
-	debug "sudo mkfs.ext4 /dev/loop12"
+	debug "sudo mkfs.vfat /dev/loop11 || exit 1"
+	debug "sudo mkfs.ext4 /dev/loop12 || exit 1"
 }
+# Write bootloader
+write_bootloader(){
+	debug "sudo dd if=/dev/zero of=/dev/loop10 bs=1k count=1023 seek=1"
+	debug "sudo dd if=u-boot-sunxi/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
+}
+
+
 
 
 # Main part of the script
@@ -160,7 +167,8 @@ create_loop_device_with_offset
 
 make_filesystems
 
-
+exit
+write_bootloader
 
 
 
