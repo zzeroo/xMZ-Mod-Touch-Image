@@ -19,17 +19,18 @@ normal=$(tput sgr0)
 # echo "this is ${bold}bold${normal} but this isn't"
 echo_b(){ echo -e ${bold}$1${normal}; }
 
-log(){
-	[[ x"${verbose}" = "xtrue" ]] && echo $1;
-}
-
+# Debug and call
+# If the verbose var is set (via environent or parameter -v, --verbose)
+# the command is echoed before calling
 debug() {
 	if [[ x"${verbose}" == "xtrue" ]]; then
 		echo ">> $1"
 		eval "$1"
 	else
-		eval "$1"
+		eval "$1" 2&>1
 	fi
+	# each command follows sn empty line
+	echo
 }
 
 # Show help, how is the programm called
@@ -63,12 +64,13 @@ create_image(){
 # Create a loop device
 create_loop_device(){
 	echo_b "Create loop device ..."
-	debug "sudo losetup /dev/loop10 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || echo \"Error: Please check loop device /dev/loop10\"; exit 1"
+	debug "sudo losetup /dev/loop10 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || exit 1"
 }
 
 # Create the partition layout
 create_partitions(){
-	sudo fdisk /dev/loop10 <<-EOF
+	echo_b "Create partitions on /dev/loop10 ..."
+	debug "sudo fdisk /dev/loop10 <<-EOF
 	o
 	n
 	p
@@ -84,17 +86,19 @@ create_partitions(){
 	1
 	7
 	w
-	EOF
+	EOF"
 }
-# Mount the partitions of the image
-mount_partitions(){
-	debug "sudo losetup --offset $[2048 * 512]  /dev/loop10p1 \"${OUTPUT_DIR}/${IMAGE_NAME}\""
-	debug "sudo losetup --offset $[43008 * 512] /dev/loop10p2 \"${OUTPUT_DIR}/${IMAGE_NAME}\""
+# Create loop devices with offset
+create_loop_device_with_offset(){
+	echo_b "Create loop devices with offset ..."
+	debug "sudo losetup --offset $[2048 * 512]  /dev/loop11 \"${OUTPUT_DIR}/${IMAGE_NAME}\""
+	debug "sudo losetup --offset $[43008 * 512] /dev/loop12 \"${OUTPUT_DIR}/${IMAGE_NAME}\""
 }
 # Make the file systems
 make_filesystems(){
-	debug "sudo mkfs.vfat /dev/loop10p1"
-	debug "sudo mkfs.ext4 /dev/loop10p2"
+	echo_b "Make files systems on the loop devices ..."
+	debug "sudo mkfs.vfat /dev/loop11"
+	debug "sudo mkfs.ext4 /dev/loop12"
 }
 
 
@@ -152,9 +156,9 @@ create_loop_device
 
 create_partitions
 
-mount_partitions
+create_loop_device_with_offset
 
-
+make_filesystems
 
 
 
