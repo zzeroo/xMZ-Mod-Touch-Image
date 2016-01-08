@@ -1,7 +1,7 @@
 #!/bin/bash
 # Setup the build environment
 # This script is heavy inspired by the one from: http://www.tomaz.me/2013/12/02/running-travis-ci-tests-on-arm.html
-SCRIPTVERSION=0.2.1
+SCRIPTVERSION=0.4.1
 # Bold echo commands
 bold=$(tput bold)
 normal=$(tput sgr0)
@@ -164,7 +164,7 @@ echo "sudo tar -C ${CHROOT_DIR} -c . | docker import - ${CHROOT_DIR}"
 
 
 
-# main
+# Main part of the script
 
 # Option parser
 getopt --test > /dev/null
@@ -209,7 +209,6 @@ done
 CHROOT_DIR=${OUTPUT_DIR}/base-image-sid
 
 
-# Main part of the script
 if [ -e "${CHROOT_DIR}/.chroot_is_done" ]; then
 	echo_b "Chroot is already present go to configure it ..."
 	config_chroot
