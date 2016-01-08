@@ -17,33 +17,85 @@ IMAGE_SIZE_MB=3000
 bold=$(tput bold)
 normal=$(tput sgr0)
 # echo "this is ${bold}bold${normal} but this isn't"
-function echo_b { echo -e ${bold}$1${normal}; }
+echo_b(){ echo -e ${bold}$1${normal}; }
 
-function show_help {
-echo
-echo -e "`basename $0`\t\t[-o|--output_dir]"
-echo
-echo_b "Arguments:"
-echo "-o | --output_dir\tWere should the output files created."
-echo
-echo "Script version: ${SCRIPTVERSION}"
+log(){
+	[[ x"${verbose}" = "xtrue" ]] && echo $1;
 }
 
-# This function creates an image
-function create_image {
-if [[ -z "${OUTPUT_DIR}/${IMAGE_NAME}" ]] || [[ -f "${OUTPUT_DIR}/${IMAGE_NAME}" && x"$force" = "xtrue" ]]; then
-  dd if=/dev/zero of="${OUTPUT_DIR}/${IMAGE_NAME}" bs=1024 count=$[$IMAGE_SIZE_MB*1024]
-else
-  echo "The file ${OUTPUT_DIR}/${IMAGE_NAME} already exist!"
-  echo "Overwrite with -f parameter."
-fi
+debug() {
+	if [[ x"${verbose}" == "xtrue" ]]; then
+		echo ">> $1"
+		eval "$1"
+	else
+		eval "$1"
+	fi
+}
+
+# Show help, how is the programm called
+show_help(){
+	echo
+	echo -e "Usage: `basename $0`\t[-o|--output_dir] [-f|--force] [-v|--verbose] [-h|--help]"
+	echo
+	echo "Arguments:"
+	echo "-o, --output_dir\tWere should the output files created."
+	echo "-f, --force\tOverride existing files, DANGER!"
+	echo "-v, --verbose\tShow witch command was called."
+	echo "-h, --help\tShow this output."
+	echo
+	echo "Script version: ${SCRIPTVERSION}"
+	exit 1
+}
+
+# This function creates an image,
+# if the image file not exists, or it exists and the --force parameter was given
+create_image(){
+	echo_b "Create image ..."
+	if [[ -z "${OUTPUT_DIR}/${IMAGE_NAME}" ]] || [[ -f "${OUTPUT_DIR}/${IMAGE_NAME}" && x"$force" = "xtrue" ]]; then
+		debug "dd if=/dev/zero of=\"${OUTPUT_DIR}/${IMAGE_NAME}\" bs=1024 count=$[$IMAGE_SIZE_MB*1024]"
+	else
+		echo "Error: The file ${OUTPUT_DIR}/${IMAGE_NAME} already exist!"
+		echo "Overwrite with -f parameter."
+		exit 1
+	fi
 }
 
 # Create a loop device
-function create_loop_device {
-sudo losetup /dev/loop10 "${OUTPUT_DIR}/${IMAGE_NAME}"
+create_loop_device(){
+	echo_b "Create loop device ..."
+	debug "sudo losetup /dev/loop10 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || echo \"Error: Please check loop device /dev/loop10\"; exit 1"
 }
 
+# Create the partition layout
+create_partitions(){
+	sudo fdisk /dev/loop10 <<-EOF
+	o
+	n
+	p
+	1
+
+	+20M
+	n
+	p
+	2
+
+
+	t
+	1
+	7
+	w
+	EOF
+}
+# Mount the partitions of the image
+mount_partitions(){
+	debug "sudo losetup --offset $[2048 * 512]  /dev/loop10p1 \"${OUTPUT_DIR}/${IMAGE_NAME}\""
+	debug "sudo losetup --offset $[43008 * 512] /dev/loop10p2 \"${OUTPUT_DIR}/${IMAGE_NAME}\""
+}
+# Make the file systems
+make_filesystems(){
+	debug "sudo mkfs.vfat /dev/loop10p1"
+	debug "sudo mkfs.ext4 /dev/loop10p2"
+}
 
 
 # Main part of the script
@@ -96,12 +148,11 @@ done
 
 create_image
 
-exit 666
 create_loop_device
 
+create_partitions
 
-
-
+mount_partitions
 
 
 
