@@ -1,5 +1,18 @@
 #!/bin/bash
+#
+# This script creates a basic image file.
+
+# Parameters
+# script verion, imcrement on change
 SCRIPTVERSION=0.0.1
+# Name of the image, the file is located in script dir,
+# or can given with the "output_dir" parameter
+IMAGE_NAME=custom-image.img
+# Image size in mega byte
+IMAGE_SIZE_MB=3000
+
+
+# Functions and logic
 # Bold echo commands
 bold=$(tput bold)
 normal=$(tput sgr0)
@@ -16,7 +29,10 @@ echo
 echo "Script version: ${SCRIPTVERSION}"
 }
 
-
+# This function creates an image
+function create_image {
+dd if=/dev/zero of="${OUTPUT_DIR}/${IMAGE_NAME}" bs=1024 count=$[$IMAGE_SIZE_MB*1024]
+}
 
 
 # Main part of the script
@@ -57,5 +73,30 @@ while true; do
 			;;
 	esac
 done
+
+# Parameter setup
+# If output dir is not given as parameter, use the current dir .
+[ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="."
+
+create_image
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
