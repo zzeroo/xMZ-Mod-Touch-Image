@@ -4,11 +4,16 @@ SCRIPTVERSION=0.0.1
 bold=$(tput bold)
 normal=$(tput sgr0)
 # echo "this is ${bold}bold${normal} but this isn't"
-function echo_b { echo ${bold}$1${normal}; }
+function echo_b { echo -e ${bold}$1${normal}; }
 
-function say_hello {
-echo "Hello"
-[ x"$verbose" = "xtrue" ] && echo "VERBOSE"
+function show_help {
+echo
+echo -e "`basename $0`\t\t[-o|--output_dir]"
+echo
+echo_b "Arguments:"
+echo "-o | --output_dir\tWere should the output files created."
+echo
+echo "Script version: ${SCRIPTVERSION}"
 }
 
 
@@ -50,11 +55,7 @@ while true; do
 			shift
 			break
 			;;
-		*)
-			echo "Error: unknown parameter" # unknown option
-			exit 3
-			;;
 	esac
 done
 
-say_hello
+
