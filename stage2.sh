@@ -4,7 +4,7 @@
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.0.2
+SCRIPTVERSION=0.0.1
 # Name of the image, the file is located in script dir,
 # or can given with the "output_dir" parameter
 IMAGE_NAME=custom-image.img
@@ -13,6 +13,7 @@ IMAGE_SIZE_MB=3000
 
 
 source ./lib/functions.sh
+
 
 # Show help, how is the programm called
 show_help(){
@@ -81,6 +82,11 @@ make_filesystems(){
 	debug "sudo mkfs.vfat /dev/loop11 || exit 1"
 	debug "sudo mkfs.ext4 /dev/loop12 || exit 1"
 }
+# Write bootloader
+write_bootloader(){
+	debug "sudo dd if=/dev/zero of=/dev/loop10 bs=1k count=1023 seek=1"
+	debug "sudo dd if=u-boot-sunxi/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
+}
 
 
 
@@ -143,6 +149,8 @@ create_loop_device_with_offset
 
 make_filesystems
 
+exit
+write_bootloader
 
 
 
