@@ -12,7 +12,11 @@ IMAGE_NAME=custom-image.img
 IMAGE_SIZE_MB=3000
 
 
-source ./lib/functions.sh
+# generic functions
+# echo_b(), and debug()
+source ./lib/generic_functions.sh
+
+
 
 
 # Show help, how is the programm called
@@ -21,10 +25,10 @@ show_help(){
 	echo -e "Usage: `basename $0`\t[-o|--output_dir] [-f|--force] [-v|--verbose] [-h|--help]"
 	echo
 	echo "Arguments:"
-	echo "-o, --output_dir\tWere should the output files created."
-	echo "-f, --force\tOverride existing files, DANGER!"
-	echo "-v, --verbose\tShow witch command was called."
-	echo "-h, --help\tShow this output."
+	echo -e "-o, --output_dir\tWere should the output files created."
+	echo -e "-f, --force\t\tOverride existing files, DANGER!"
+	echo -e "-v, --verbose\t\tShow witch command was called."
+	echo -e "-h, --help\t\tShow this output."
 	echo
 	echo "Script version: ${SCRIPTVERSION}"
 	exit 1
