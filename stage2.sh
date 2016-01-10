@@ -18,22 +18,6 @@ source ./lib/generic_functions.sh
 
 
 
-
-# Show help, how is the programm called
-show_help(){
-	echo
-	echo -e "Usage: `basename $0`\t[-o|--output_dir] [-f|--force] [-v|--verbose] [-h|--help]"
-	echo
-	echo "Arguments:"
-	echo -e "-o, --output_dir\tWere should the output files created."
-	echo -e "-f, --force\t\tOverride existing files, DANGER!"
-	echo -e "-v, --verbose\t\tShow witch command was called."
-	echo -e "-h, --help\t\tShow this output."
-	echo
-	echo "Script version: ${SCRIPTVERSION}"
-	exit 1
-}
-
 # This function creates an image,
 # if the image file not exists, or it exists and the --force parameter was given
 create_image(){
@@ -74,18 +58,21 @@ create_partitions(){
 	w
 	EOF"
 }
+
 # Create loop devices with offset
 create_loop_device_with_offset(){
 	echo_b "Create loop devices with offset ..."
 	debug "sudo losetup --offset $[2048 * 512]  /dev/loop11 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || exit 1"
 	debug "sudo losetup --offset $[43008 * 512] /dev/loop12 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || exit 1"
 }
+
 # Make the file systems
 make_filesystems(){
 	echo_b "Make files systems on the loop devices ..."
 	debug "sudo mkfs.vfat /dev/loop11 || exit 1"
 	debug "sudo mkfs.ext4 /dev/loop12 || exit 1"
 }
+
 # Write bootloader
 write_bootloader(){
 	debug "sudo dd if=/dev/zero of=/dev/loop10 bs=1k count=1023 seek=1"
@@ -98,50 +85,7 @@ write_bootloader(){
 # Main part of the script
 
 # Option parser
-getopt --test > /dev/null
-if [[ $? != 4 ]]; then
-	echo "I’m sorry, `getopt --test` failed in this environment."
-	exit 1
-fi
-
-SHORT=o:fhv
-LONG=output:,force,help,verbose
-
-PARSED=`getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@"`
-if [[ $? != 0 ]]; then
-	exit 2
-fi
-eval set -- "$PARSED"
-
-while true; do
-	case "$1" in
-		-o|--output_dir)
-			OUTPUT_DIR="$2"
-			shift 2 # past argument
-			;;
-		-v|--verbose)
-			verbose=true
-			shift # past argument
-			;;
-		-f|--force)
-			force=true
-			shift # past argument
-			;;
-		-h|--help)
-			show_help
-			shift # past argument
-			;;
-		--)
-			shift
-			break
-			;;
-	esac
-done
-
-# Parameter setup
-# If output dir is not given as parameter, use the current dir .
-[ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="."
-
+source ./lib/option_parser.sh
 
 create_image
 

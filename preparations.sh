@@ -18,19 +18,64 @@ source ./lib/generic_functions.sh
 
 
 
-# Show help, how is the programm called
-show_help(){
-	echo
-	echo -e "Usage: `basename $0`\t[-o|--output_dir] [-f|--force] [-v|--verbose] [-h|--help]"
-	echo
-	echo_b "Arguments:"
-	echo -e "-o, --output_dir\tWere should the output files created."
-	echo -e "-f, --force\t\tOverride existing files, DANGER!"
-	echo -e "-v, --verbose\t\tShow witch command was called."
-	echo -e "-h, --help\t\tShow this output."
-	echo
-	echo "Script version: ${SCRIPTVERSION}"
-	exit 1
+apt_update(){
+  debug "sudo apt-get update && sudo apt-get upgrade"
+}
+
+install_qemu(){
+  debug "sudo apt-get install -y build-essential u-boot-tools binutils-arm-linux-gnueabihf gcc-5-arm-linux-gnueabihf-base g++-5-arm-linux-gnueabihf"
+}
+
+install_dependencies(){
+  debug "sudo apt-get install -y gcc-arm-linux-gnueabihf cpp-arm-linux-gnueabihf libusb-1.0-0 libusb-1.0-0-dev git wget fakeroot kernel-package zlib1g-dev libncurses5-dev"
+  debug "sudo apt-get install pkg-config"
+}
+
+build_bsp(){
+	debug "cd ${OUTPUT_DIR}"
+	debug "git clone https://github.com/LeMaker/lemaker-bsp.git"
+	debug "cd lemaker-bsp.git"
+	debug "./configure BananaPro"
+	debug "make"
+}
+
+build_uboot(){
+	debug "cd ${OUTPUT_DIR}"
+	debug "git clone https://github.com/LeMaker/u-boot-sunxi.git"
+  debug "cd u-boot-sunxi"
+  debug "make CROSS_COMPILE=arm-linux-gnueabihf- BananaPro_config"
+  debug "make CROSS_COMPILE=arm-linux-gnueabihf-"
+}
+
+build_sunxi_tools(){
+	cd ${OUTPUT_DIR}
+  git clone https://github.com/LeMaker/sunxi-tools.git
+  cd sunxi-tools
+  make
+}
+
+build_sunxi_boards(){
+	cd ${OUTPUT_DIR}
+  git clone https://github.com/LeMaker/sunxi-boards.git
+
+}
+
+get_fex_configuration(){
+	cd ${OUTPUT_DIR}
+  git clone https://github.com/LeMaker/fex_configuration.git
+}
+
+build_linux_kernel(){
+	cd ${OUTPUT_DIR}
+  # Kernel checkout
+  git clone https://github.com/LeMaker/linux-sunxi.git
+  # default configuration
+  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- sun7i_defconfig
+  # start menuconfig for manual configuration
+  # FIXME: Include custom config
+  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- menuconfig
+  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- uImage modules
+  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=output modules_install
 }
 
 
@@ -40,53 +85,29 @@ show_help(){
 # Main part of the script
 
 # Option parser
-getopt --test > /dev/null
-if [[ $? != 4 ]]; then
-	echo "I’m sorry, `getopt --test` failed in this environment."
-	exit 1
-fi
-
-SHORT=o:fhv
-LONG=output:,force,help,verbose
-
-PARSED=`getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@"`
-if [[ $? != 0 ]]; then
-	exit 2
-fi
-eval set -- "$PARSED"
-
-while true; do
-	case "$1" in
-		-o|--output_dir)
-			OUTPUT_DIR="$2"
-			shift 2 # past argument
-			;;
-		-v|--verbose)
-			verbose=true
-			shift # past argument
-			;;
-		-f|--force)
-			force=true
-			shift # past argument
-			;;
-		-h|--help)
-			show_help
-			shift # past argument
-			;;
-		--)
-			shift
-			break
-			;;
-	esac
-done
-
-# Parameter setup
-# If output dir is not given as parameter, use the current dir .
-[ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="."
+source ./lib/option_parser.sh
 
 
 
 
+apt_update
+
+install_dependencies
+
+install_qemu
+
+build_bsp
+exit
+
+build_uboot
+
+build_sunxi_tools
+
+build_sunxi_boards
+
+get_fex_configuration
+
+build_linux_kernel
 
 
 
