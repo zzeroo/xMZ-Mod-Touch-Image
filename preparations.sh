@@ -39,7 +39,7 @@ build_bsp(){
   run "# https://github.com/LeMaker/lemaker-bsp"
 	run "cd ${OUTPUT_DIR}"
 	run "git clone https://github.com/LeMaker/lemaker-bsp.git"
-	run "cd lemaker-bsp.git"
+	run "cd lemaker-bsp"
 	run "./configure BananaPro"
 	run "make"
 }
@@ -57,40 +57,40 @@ build_uboot(){
 build_sunxi_tools(){
   debug "Build sunxi tools a.k.a. sun4i ..."
   run "# https://github.com/LeMaker/sunxi-tools"
-	cd ${OUTPUT_DIR}
-  git clone https://github.com/LeMaker/sunxi-tools.git
-  cd sunxi-tools
-  make
+	run "cd ${OUTPUT_DIR}"
+  run "git clone https://github.com/LeMaker/sunxi-tools.git"
+  run "cd sunxi-tools"
+  run "make"
 }
 
 build_sunxi_boards(){
   debug "Build sys_config files for different sunxi boards ..."
   run "# https://github.com/LeMaker/sunxi-boards"
-	cd ${OUTPUT_DIR}
-  git clone https://github.com/LeMaker/sunxi-boards.git
+	run "cd ${OUTPUT_DIR}"
+  run "git clone https://github.com/LeMaker/sunxi-boards.git"
 
 }
 
 get_fex_configuration(){
   debug "Fetch fex_configuration files (fex and bin) ..."
   run "# https://github.com/LeMaker/fex_configuration"
-	cd ${OUTPUT_DIR}
-  git clone https://github.com/LeMaker/fex_configuration.git
+	run "cd ${OUTPUT_DIR}"
+  run "git clone https://github.com/LeMaker/fex_configuration.git"
 }
 
 build_linux_kernel(){
   debug "Fetch and build the linux kernel ..."
   run "# https://github.com/LeMaker/linux-sunxi"
-	cd ${OUTPUT_DIR}
-  # Kernel checkout
-  git clone https://github.com/LeMaker/linux-sunxi.git
-  # default configuration
-  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- sun7i_defconfig
-  # start menuconfig for manual configuration
-  # FIXME: Include custom config
-  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- menuconfig
-  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- uImage modules
-  make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=output modules_install
+	run "cd ${OUTPUT_DIR}"
+  run "# Kernel checkout"
+  run "git clone https://github.com/LeMaker/linux-sunxi.git"
+  run "# default configuration"
+  run "make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- sun7i_defconfig"
+  run "# start menuconfig for manual configuration"
+  run "# FIXME: Include custom config"
+  run "make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- menuconfig"
+  run "make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- uImage modules"
+  run "make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=output modules_install"
 }
 
 
