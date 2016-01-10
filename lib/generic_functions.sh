@@ -29,10 +29,17 @@ show_help(){
 }
 
 
+# Debug
+debug() {
+  if [[ ! x"${simulate}" == "xtrue" ]]; then
+    echo_b "$1"
+  fi
+}
+
 # Simulate, debug and call the command given as the only one parameter
 # If the verbose var is set (via environent or parameter -v, --verbose)
 # the command is echoed before calling
-debug() {
+run() {
   if [[ x"${simulate}" == "xtrue" ]]; then
 		echo "$1"
   elif [[ x"${verbose}" == "xtrue" && ! x"${simulate}" == "xtrue" ]]; then

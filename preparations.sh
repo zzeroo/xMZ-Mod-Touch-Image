@@ -19,35 +19,44 @@ source ./lib/generic_functions.sh
 
 
 apt_update(){
-  debug "sudo apt-get update && sudo apt-get upgrade"
+  debug "Update apt repository on developer system ..."
+  run "sudo apt-get update && sudo apt-get upgrade"
 }
 
 install_qemu(){
-  debug "sudo apt-get install -y build-essential u-boot-tools binutils-arm-linux-gnueabihf gcc-5-arm-linux-gnueabihf-base g++-5-arm-linux-gnueabihf"
+  debug "Install qemu and dependencies ..."
+  run "sudo apt-get install -y build-essential u-boot-tools binutils-arm-linux-gnueabihf gcc-5-arm-linux-gnueabihf-base g++-5-arm-linux-gnueabihf"
 }
 
 install_dependencies(){
-  debug "sudo apt-get install -y gcc-arm-linux-gnueabihf cpp-arm-linux-gnueabihf libusb-1.0-0 libusb-1.0-0-dev git wget fakeroot kernel-package zlib1g-dev libncurses5-dev"
-  debug "sudo apt-get install pkg-config"
+  debug "Install dependencies on developer system ..."
+  run "sudo apt-get install -y gcc-arm-linux-gnueabihf cpp-arm-linux-gnueabihf libusb-1.0-0 libusb-1.0-0-dev git wget fakeroot kernel-package zlib1g-dev libncurses5-dev"
+  run "sudo apt-get install pkg-config"
 }
 
 build_bsp(){
-	debug "cd ${OUTPUT_DIR}"
-	debug "git clone https://github.com/LeMaker/lemaker-bsp.git"
-	debug "cd lemaker-bsp.git"
-	debug "./configure BananaPro"
-	debug "make"
+  debug "Board Support Package ..."
+  run "# https://github.com/LeMaker/lemaker-bsp"
+	run "cd ${OUTPUT_DIR}"
+	run "git clone https://github.com/LeMaker/lemaker-bsp.git"
+	run "cd lemaker-bsp.git"
+	run "./configure BananaPro"
+	run "make"
 }
 
 build_uboot(){
-	debug "cd ${OUTPUT_DIR}"
-	debug "git clone https://github.com/LeMaker/u-boot-sunxi.git"
-  debug "cd u-boot-sunxi"
-  debug "make CROSS_COMPILE=arm-linux-gnueabihf- BananaPro_config"
-  debug "make CROSS_COMPILE=arm-linux-gnueabihf-"
+  debug "Build U-Boot, boot loader ..."
+  run "# https://github.com/LeMaker/u-boot-sunxi"
+	run "cd ${OUTPUT_DIR}"
+	run "git clone https://github.com/LeMaker/u-boot-sunxi.git"
+  run "cd u-boot-sunxi"
+  run "make CROSS_COMPILE=arm-linux-gnueabihf- BananaPro_config"
+  run "make CROSS_COMPILE=arm-linux-gnueabihf-"
 }
 
 build_sunxi_tools(){
+  debug "Build sunxi tools a.k.a. sun4i ..."
+  run "# https://github.com/LeMaker/sunxi-tools"
 	cd ${OUTPUT_DIR}
   git clone https://github.com/LeMaker/sunxi-tools.git
   cd sunxi-tools
@@ -55,17 +64,23 @@ build_sunxi_tools(){
 }
 
 build_sunxi_boards(){
+  debug "Build sys_config files for different sunxi boards ..."
+  run "# https://github.com/LeMaker/sunxi-boards"
 	cd ${OUTPUT_DIR}
   git clone https://github.com/LeMaker/sunxi-boards.git
 
 }
 
 get_fex_configuration(){
+  debug "Fetch fex_configuration files (fex and bin) ..."
+  run "# https://github.com/LeMaker/fex_configuration"
 	cd ${OUTPUT_DIR}
   git clone https://github.com/LeMaker/fex_configuration.git
 }
 
 build_linux_kernel(){
+  debug "Fetch and build the linux kernel ..."
+  run "# https://github.com/LeMaker/linux-sunxi"
 	cd ${OUTPUT_DIR}
   # Kernel checkout
   git clone https://github.com/LeMaker/linux-sunxi.git
@@ -97,7 +112,6 @@ install_dependencies
 install_qemu
 
 build_bsp
-exit
 
 build_uboot
 
