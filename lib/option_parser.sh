@@ -45,6 +45,6 @@ while true; do
 done
 
 # Parameter setup
-# If output dir is not given as parameter, use the current dir .
-[ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="."
+# If output dir is not given as parameter, use the current dir.
+[ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR=`pwd`
 

@@ -111,8 +111,10 @@ install_dependencies
 
 install_qemu
 
-build_bsp
+# Option 1 BSP
+# build_bsp
 
+# Option 2
 build_uboot
 
 build_sunxi_tools
