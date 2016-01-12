@@ -12,6 +12,14 @@ normal=$(tput sgr0)
 echo_b(){ echo -e ${bold}$1${normal}; }
 
 
+example() {
+  if [[ ! "x${EXAMPLE}" = "x" ]]; then
+    echo_b "Example:"
+    echo -e "\t$1"
+    echo
+  fi
+}
+
 # Show help, how is the programm called
 show_help(){
 	echo
@@ -24,6 +32,7 @@ show_help(){
 	echo -e "-f, --force\t\tOverride existing files, DANGER!"
 	echo -e "-h, --help\t\tShow this output."
 	echo
+  example "${EXAMPLE}"
 	echo "Script version: ${SCRIPTVERSION}"
 	exit 1
 }
