@@ -103,7 +103,7 @@ make_dist(){
   run "cp ./u-boot-sunxi/u-boot-sunxi-with-spl.bin files-kernel-modules/"
   run "cp ./linux-sunxi/arch/arm/boot/uImage files-kernel-modules/"
   run "cp ./fex_configuration/bin/banana_pro_7lcd.bin files-kernel-modules/"
-  run "cp ./linux-sunxi/output/lib/modules/3.4.XX files-kernel-modules/"
+  run "cp -r ./linux-sunxi/output/lib/modules/3.4* files-kernel-modules/"
   run "tar cfvz files-kernel-modules-${SCRIPTVERSION}.tgz files-kernel-modules/"
   run "rm -rf files-kernel-modules"
 }
