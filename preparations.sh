@@ -1,13 +1,11 @@
 #!/bin/bash
 #
-# This script prepare the system for the stage scripts
+# This script should be used in a systemd-nspawn container with an up to date
+# debian wheezy image
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.1.2
-# Name of the image, the file is located in script dir,
-# or can given with the "output_dir" parameter
-IMAGE_NAME=custom-image.img
+SCRIPTVERSION=0.1.3
 # Image size in mega byte
 IMAGE_SIZE_MB=3000
 
@@ -17,14 +15,12 @@ IMAGE_SIZE_MB=3000
 source ./lib/generic_functions.sh
 
 
-apt_update(){
-  # Check for sudo
+# Check for sudo
+check_sudo(){
   if [[ x`which sudo` = "x" ]]; then
     debug "Error: sudo is not present. Trying to install it, hopefully we are root here"
     run "apt-get update && apt-get install -y sudo"
   fi
-  debug "Update apt repository ..."
-  run "sudo apt-get update && sudo apt-get upgrade -v"
 }
 
 install_dependencies(){
@@ -99,6 +95,18 @@ build_linux_kernel(){
   run "make ARCH=arm INSTALL_MOD_PATH=output modules_install"
 }
 
+# Make a distribution tarball with the generated files, kernel and modules
+make_dist(){
+  debug "Create a tarball with the generated files, kernel and modules ..."
+	run "cd ${OUTPUT_DIR}"
+  run "mkdir files-kernel-modules/"
+  run "cp ./u-boot-sunxi/u-boot-sunxi-with-spl.bin files-kernel-modules/"
+  run "cp ./linux-sunxi/arch/arm/boot/uImage files-kernel-modules/"
+  run "cp ./fex_configuration/bin/banana_pro_7lcd.bin files-kernel-modules/"
+  run "cp ./linux-sunxi/output/lib/modules/3.4.XX files-kernel-modules/"
+  run "tar cfvz files-kernel-modules-${SCRIPTVERSION}.tgz files-kernel-modules/"
+  run "rm -rf files-kernel-modules"
+}
 
 
 
@@ -111,7 +119,7 @@ source ./lib/option_parser.sh
 
 
 
-apt_update
+check_sudo
 
 install_dependencies
 
@@ -129,7 +137,7 @@ get_fex_configuration
 
 build_linux_kernel
 
-
+make_dist
 
 
 
