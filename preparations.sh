@@ -4,7 +4,7 @@
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.1.1
+SCRIPTVERSION=0.1.2
 # Name of the image, the file is located in script dir,
 # or can given with the "output_dir" parameter
 IMAGE_NAME=custom-image.img
@@ -17,45 +17,40 @@ IMAGE_SIZE_MB=3000
 source ./lib/generic_functions.sh
 
 
-
 apt_update(){
   # Check for sudo
   if [[ x`which sudo` = "x" ]]; then
     debug "Error: sudo is not present. Trying to install it, hopefully we are root here"
     run "apt-get update && apt-get install -y sudo"
   fi
-  debug "Update apt repository on developer system ..."
+  debug "Update apt repository ..."
   run "sudo apt-get update && sudo apt-get upgrade -v"
-}
-
-install_qemu(){
-  debug "Install qemu and dependencies ..."
-  run "sudo apt-get install -y build-essential u-boot-tools"
 }
 
 install_dependencies(){
   debug "Install dependencies for tools and kernel ..."
+  run "sudo apt-get install -y build-essential u-boot-tools"
   run "sudo apt-get install -y libusb-1.0-0-dev git wget fakeroot kernel-package zlib1g-dev libncurses5-dev"
   run "sudo apt-get install -y pkg-config"
 }
 
-# Option1 all files in so named Board Support Package (BSP), NOT USED!
-build_bsp(){
-  debug "Board Support Package ..."
-  run "# https://github.com/LeMaker/lemaker-bsp"
-	run "cd ${OUTPUT_DIR}"
-	run "git clone https://github.com/LeMaker/lemaker-bsp.git"
-	run "cd lemaker-bsp"
-	run "./configure BananaPro"
-	run "make"
-}
+# # OPTION1: all files in so named Board Support Package (BSP), NOT USED!
+# build_bsp(){
+#   debug "Board Support Package ..."
+#   run "# https://github.com/LeMaker/lemaker-bsp"
+# 	run "cd ${OUTPUT_DIR}"
+# 	run "git clone https://github.com/LeMaker/lemaker-bsp.git"
+# 	run "cd lemaker-bsp"
+# 	run "./configure BananaPro"
+# 	run "make"
+# }
 
-# All following function are Option2, manual packege selection
+# OPTION2: All following function are Option2, manual packege selection
 build_uboot(){
   debug "Build U-Boot, boot loader ..."
   run "# https://github.com/LeMaker/u-boot-sunxi"
 	run "cd ${OUTPUT_DIR}"
-	run "git clone https://github.com/LeMaker/u-boot-sunxi.git"
+	run "if [[ -d u-boot-sunxi ]]; then cd u-boot-sunxi && git pull; else git clone https://github.com/LeMaker/u-boot-sunxi.git fi"
   run "cd u-boot-sunxi"
   run "make BananaPro_config"
   run "make"
@@ -115,8 +110,6 @@ source ./lib/option_parser.sh
 apt_update
 
 install_dependencies
-
-install_qemu
 
 # Option 1 BSP
 # build_bsp
