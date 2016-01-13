@@ -36,7 +36,7 @@ install_qemu(){
 install_dependencies(){
   debug "Install dependencies for tools and kernel ..."
   run "sudo apt-get install -y libusb-1.0-0-dev git wget fakeroot kernel-package zlib1g-dev libncurses5-dev"
-  run "sudo apt-get install pkg-config"
+  run "sudo apt-get install -y pkg-config"
 }
 
 # Option1 all files in so named Board Support Package (BSP), NOT USED!
