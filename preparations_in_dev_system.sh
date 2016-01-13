@@ -1,13 +1,12 @@
 #!/bin/bash
 #
-# This script should be used in a systemd-nspawn container with an up to date
-# debian wheezy image
+# This script fetches the sunxi tools and linux kernel and build them when
+# needed. It should be used in a systemd-nspawn container with an up to date
+# debian wheezy image.
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.1.3
-# Image size in mega byte
-IMAGE_SIZE_MB=3000
+SCRIPTVERSION=0.1.7
 
 
 # generic functions
@@ -106,6 +105,7 @@ make_dist(){
   run "cp -r ./linux-sunxi/output/lib/modules/3.4* files-kernel-modules/"
   run "tar cfvz files-kernel-modules-${SCRIPTVERSION}.tgz files-kernel-modules/"
   run "rm -rf files-kernel-modules"
+  run "# sudo cp /var/lib/container/${DISTRIBUTION}_armhf-development/root/files-kernel-modules-${SCRIPTVERSION}.tgz ."
 }
 
 
