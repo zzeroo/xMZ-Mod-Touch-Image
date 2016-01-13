@@ -21,7 +21,7 @@ source ./lib/generic_functions.sh
 # if the image file not exists, or it exists and the --force parameter was given
 create_image(){
 	debug "Create image ..."
-	if [[ -z "${OUTPUT_DIR}/${IMAGE_NAME}" ]] || [[ -f "${OUTPUT_DIR}/${IMAGE_NAME}" && x"$force" = "xtrue" ]]; then
+	if [[ -z "${OUTPUT_DIR}/${IMAGE_NAME}" ]] || [[ -f "${OUTPUT_DIR}/${IMAGE_NAME}" && x"$FORCE" = "xtrue" ]]; then
 		run "dd if=/dev/zero of=\"${OUTPUT_DIR}/${IMAGE_NAME}\" bs=1024 count=$[$IMAGE_SIZE_MB*1024]"
 	else
 		echo "Error: The file ${OUTPUT_DIR}/${IMAGE_NAME} already exist!"
@@ -75,7 +75,7 @@ make_filesystems(){
 
 # Main part of the script
 
-# Option parser
+# include option parser
 source ./lib/option_parser.sh
 
 

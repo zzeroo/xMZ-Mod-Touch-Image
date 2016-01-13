@@ -3,14 +3,14 @@
 # This script fetches the sunxi tools and linux kernel and build them when
 # needed. It should be used in a systemd-nspawn container with an up to date
 # debian wheezy image.
+EXAMPLE="./`basename $0` -s"
 
 # Parameters
 # script verion, imcrement on change
 SCRIPTVERSION=0.1.7
 
 
-# generic functions
-# echo_b(), and debug()
+# include generic functions (echo_b(), and debug() and so on)
 source ./lib/generic_functions.sh
 
 
@@ -113,7 +113,7 @@ make_dist(){
 
 # Main part of the script
 
-# Option parser
+# include option parser
 source ./lib/option_parser.sh
 
 

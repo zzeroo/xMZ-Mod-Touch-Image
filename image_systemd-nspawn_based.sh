@@ -12,8 +12,7 @@ IMAGE_NAME=${DISTRIBUTION}_image_systemd-nspawn_based.img
 # Image size in mega byte
 IMAGE_SIZE_MB=3000
 
-# generic functions
-# echo_b(), and debug()
+# include generic functions (echo_b(), and debug() and so on)
 source ./lib/generic_functions.sh
 
 
@@ -58,7 +57,7 @@ run_systemd_nspawn() {
 
 # Main part of the script
 
-# Option parser
+# include option parser
 source ./lib/option_parser.sh
 
 
