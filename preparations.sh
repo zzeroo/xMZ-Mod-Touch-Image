@@ -50,7 +50,7 @@ build_uboot(){
   debug "Build U-Boot, boot loader ..."
   run "# https://github.com/LeMaker/u-boot-sunxi"
 	run "cd ${OUTPUT_DIR}"
-	run "if [[ -d u-boot-sunxi ]]; then cd u-boot-sunxi && git pull; else git clone https://github.com/LeMaker/u-boot-sunxi.git fi"
+	run "if [[ -d u-boot-sunxi ]]; then cd u-boot-sunxi && git pull; else git clone https://github.com/LeMaker/u-boot-sunxi.git; fi"
   run "cd u-boot-sunxi"
   run "make BananaPro_config"
   run "make"
