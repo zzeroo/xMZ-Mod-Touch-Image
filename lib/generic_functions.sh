@@ -37,7 +37,6 @@ show_help(){
 	exit 1
 }
 
-
 # Debug
 debug() {
   if [[ ! x"${simulate}" == "xtrue" ]]; then

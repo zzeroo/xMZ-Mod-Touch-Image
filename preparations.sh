@@ -4,7 +4,7 @@
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.0.1
+SCRIPTVERSION=0.1.1
 # Name of the image, the file is located in script dir,
 # or can given with the "output_dir" parameter
 IMAGE_NAME=custom-image.img
@@ -19,21 +19,27 @@ source ./lib/generic_functions.sh
 
 
 apt_update(){
+  # Check for sudo
+  if [[ x`which sudo` = "x" ]]; then
+    debug "Error: sudo is not present. Trying to install it, hopefully we are root here"
+    run "apt-get update && apt-get install -y sudo"
+  fi
   debug "Update apt repository on developer system ..."
-  run "sudo apt-get update && sudo apt-get upgrade"
+  run "sudo apt-get update && sudo apt-get upgrade -v"
 }
 
 install_qemu(){
   debug "Install qemu and dependencies ..."
-  run "sudo apt-get install -y build-essential u-boot-tools binutils-arm-linux-gnueabihf gcc-5-arm-linux-gnueabihf-base g++-5-arm-linux-gnueabihf"
+  run "sudo apt-get install -y build-essential u-boot-tools"
 }
 
 install_dependencies(){
-  debug "Install dependencies on developer system ..."
-  run "sudo apt-get install -y gcc-arm-linux-gnueabihf cpp-arm-linux-gnueabihf libusb-1.0-0 libusb-1.0-0-dev git wget fakeroot kernel-package zlib1g-dev libncurses5-dev"
+  debug "Install dependencies for tools and kernel ..."
+  run "sudo apt-get install -y libusb-1.0-0-dev git wget fakeroot kernel-package zlib1g-dev libncurses5-dev"
   run "sudo apt-get install pkg-config"
 }
 
+# Option1 all files in so named Board Support Package (BSP), NOT USED!
 build_bsp(){
   debug "Board Support Package ..."
   run "# https://github.com/LeMaker/lemaker-bsp"
@@ -44,14 +50,15 @@ build_bsp(){
 	run "make"
 }
 
+# All following function are Option2, manual packege selection
 build_uboot(){
   debug "Build U-Boot, boot loader ..."
   run "# https://github.com/LeMaker/u-boot-sunxi"
 	run "cd ${OUTPUT_DIR}"
 	run "git clone https://github.com/LeMaker/u-boot-sunxi.git"
   run "cd u-boot-sunxi"
-  run "make CROSS_COMPILE=arm-linux-gnueabihf- BananaPro_config"
-  run "make CROSS_COMPILE=arm-linux-gnueabihf-"
+  run "make BananaPro_config"
+  run "make"
 }
 
 build_sunxi_tools(){
@@ -85,12 +92,12 @@ build_linux_kernel(){
   run "# Kernel checkout"
   run "git clone https://github.com/LeMaker/linux-sunxi.git"
   run "# default configuration"
-  run "make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- sun7i_defconfig"
+  run "make ARCH=arm sun7i_defconfig"
   run "# start menuconfig for manual configuration"
   run "# FIXME: Include custom config"
-  run "make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- menuconfig"
-  run "make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- uImage modules"
-  run "make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=output modules_install"
+  run "# make ARCH=arm menuconfig"
+  run "make ARCH=arm uImage modules"
+  run "make ARCH=arm INSTALL_MOD_PATH=output modules_install"
 }
 
 

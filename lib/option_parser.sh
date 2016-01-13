@@ -6,8 +6,8 @@ if [[ $? != 4 ]]; then
 	exit 1
 fi
 
-SHORT=o:svfh
-LONG=output:,simulate,verbose,force,help
+SHORT=o:d:svfh
+LONG=output:,distribution:,simulate,verbose,force,help
 
 PARSED=`getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@"`
 if [[ $? != 0 ]]; then
@@ -19,6 +19,10 @@ while true; do
 	case "$1" in
 		-o|--output_dir)
 			OUTPUT_DIR="$2"
+			shift 2 # past argument
+			;;
+		-d|--distribution)
+			DISTRIBUTION="$2"
 			shift 2 # past argument
 			;;
 		-s|--simulate)
@@ -44,7 +48,8 @@ while true; do
 	esac
 done
 
-# Parameter setup
+# Parameter setup, default values
 # If output dir is not given as parameter, use the current dir.
 [ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR=`pwd`
-
+# If distribution is not given as parameter we use debian sid.
+[ x"${DISTRIBUTION}" = x ] && DISTRIBUTION="sid"
