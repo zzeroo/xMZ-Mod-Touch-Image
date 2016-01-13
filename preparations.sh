@@ -50,7 +50,7 @@ build_uboot(){
   debug "Build U-Boot, boot loader ..."
   run "# https://github.com/LeMaker/u-boot-sunxi"
 	run "cd ${OUTPUT_DIR}"
-	run "[[ -d u-boot-sunxi ]] && git clone https://github.com/LeMaker/u-boot-sunxi.git"
+	run "[[ ! -d u-boot-sunxi ]] && git clone https://github.com/LeMaker/u-boot-sunxi.git"
   run "cd u-boot-sunxi"
   run "git pull"
   run "make BananaPro_config"
@@ -61,7 +61,7 @@ build_sunxi_tools(){
   debug "Build sunxi tools a.k.a. sun4i ..."
   run "# https://github.com/LeMaker/sunxi-tools"
 	run "cd ${OUTPUT_DIR}"
-  run "[[ -d sunxi-tools ]] && git clone https://github.com/LeMaker/sunxi-tools.git"
+  run "[[ ! -d sunxi-tools ]] && git clone https://github.com/LeMaker/sunxi-tools.git"
   run "cd sunxi-tools"
   run "git pull"
   run "make"
@@ -71,7 +71,7 @@ build_sunxi_boards(){
   debug "Build sys_config files for different sunxi boards ..."
   run "# https://github.com/LeMaker/sunxi-boards"
 	run "cd ${OUTPUT_DIR}"
-  run "[[ -d sunxi-boards ]] && git clone https://github.com/LeMaker/sunxi-boards.git"
+  run "[[ ! -d sunxi-boards ]] && git clone https://github.com/LeMaker/sunxi-boards.git"
 
 }
 
@@ -79,7 +79,7 @@ get_fex_configuration(){
   debug "Fetch fex_configuration files (fex and bin) ..."
   run "# https://github.com/LeMaker/fex_configuration"
 	run "cd ${OUTPUT_DIR}"
-  run "[[ -d fex_configuration ]] && git clone https://github.com/LeMaker/fex_configuration.git"
+  run "[[ ! -d fex_configuration ]] && git clone https://github.com/LeMaker/fex_configuration.git"
 }
 
 build_linux_kernel(){
@@ -87,7 +87,7 @@ build_linux_kernel(){
   run "# https://github.com/LeMaker/linux-sunxi"
 	run "cd ${OUTPUT_DIR}"
   run "# Kernel checkout"
-  run "[[ -d linux-sunxi ]] && git clone https://github.com/LeMaker/linux-sunxi.git"
+  run "[[ ! -d linux-sunxi ]] && git clone https://github.com/LeMaker/linux-sunxi.git"
   run "cd linux-sunxi"
   run "git pull"
   run "# default configuration"
