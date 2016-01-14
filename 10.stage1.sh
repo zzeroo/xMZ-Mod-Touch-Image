@@ -70,7 +70,10 @@ make_filesystems(){
 	run "sudo mkfs.ext4 /dev/loop12 || exit 1"
 }
 
-
+clean_loop_devices(){
+	debug "Destroy loop devices ..."
+	run "sudo losetup -d /dev/loop{10,11,12}"
+}
 
 
 # Main part of the script
@@ -89,6 +92,7 @@ create_loop_device_with_offset
 
 make_filesystems
 
+clean_loop_devices
 
 
 
