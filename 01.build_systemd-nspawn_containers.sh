@@ -42,7 +42,8 @@ print_quemu_setup() {
 
 debootstrap_template_container(){
   debug "Bootstrapping ${DISTRIBUTION} to ${CONTAINER_DIR} ..."
-  run "sudo debootstrap --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/"
+  run "# sudo debootstrap --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/"
+  run "sudo debootstrap --variant=minbase --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/"
 }
 
 derive_development_container(){

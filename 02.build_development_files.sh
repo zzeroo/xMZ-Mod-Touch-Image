@@ -93,7 +93,7 @@ build_linux_kernel(){
 build_libmodbus(){
   debug "Fetch and build libmodbus ..."
   run "# https://github.com/stephane/libmodbus.git"
-  run "sudo apt-get install -y autoconf git-core build-essential"
+  run "sudo apt-get install -y autoconf git-core build-essential libtool"
 	run "cd ${OUTPUT_DIR}"
   run "[[ ! -d libmodbus ]] && git clone https://github.com/stephane/libmodbus.git --depth=1"
   run "cd libmodbus"
@@ -107,8 +107,8 @@ build_libmodbus(){
 build_xmz(){
   debug "Fetch and build the xMZ-Mod-Touch GUI ..."
   run "# https://github.com/zzeroo/xMZ-Mod-Touch-GUI.git"
-  run "apt-get install libgirepository1.0-dev"
-  run "apt-get install gnome-common"
+  run "apt-get install -y libgtk-3-dev gsettings-desktop-schemas-dev libgee-dev libsqlite3-dev inttool"
+  run "apt-get install -y libgirepository1.0-dev gnome-common valac"
 	run "cd ${OUTPUT_DIR}"
   run "[[ ! -d xMZ-Mod-Touch-GUI ]] && git clone https://github.com/zzeroo/xMZ-Mod-Touch-GUI.git --depth=1"
   run "cd xMZ-Mod-Touch-GUI"
