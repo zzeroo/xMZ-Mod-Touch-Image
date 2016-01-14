@@ -1,8 +1,7 @@
 #!/bin/bash
 #
-# This script fetches the sunxi tools and linux kernel and build them when
-# needed. It should be used in a systemd-nspawn container with an up to date
-# debian wheezy image.
+# This script must be called into the systemd-nspawn development container
+#
 EXAMPLE="./`basename $0` -s"
 
 # Parameters
@@ -91,6 +90,34 @@ build_linux_kernel(){
   run "make ARCH=arm INSTALL_MOD_PATH=output modules_install"
 }
 
+build_libmodbus(){
+  debug "Fetch and build libmodbus ..."
+  run "# https://github.com/stephane/libmodbus.git"
+  run "sudo apt-get install -y autoconf git-core build-essential"
+	run "cd ${OUTPUT_DIR}"
+  run "[[ ! -d libmodbus ]] && git clone https://github.com/stephane/libmodbus.git --depth=1"
+  run "cd libmodbus"
+  run "git pull"
+  run "./autogen.sh"
+  run "./configure --prefix=/usr"
+  run "make"
+  run "make install"
+}
+
+build_xmz(){
+  debug "Fetch and build the xMZ-Mod-Touch GUI ..."
+  run "# https://github.com/zzeroo/xMZ-Mod-Touch-GUI.git"
+  run "apt-get install libgirepository1.0-dev"
+  run "apt-get install gnome-common"
+	run "cd ${OUTPUT_DIR}"
+  run "[[ ! -d xMZ-Mod-Touch-GUI ]] && git clone https://github.com/zzeroo/xMZ-Mod-Touch-GUI.git --depth=1"
+  run "cd xMZ-Mod-Touch-GUI"
+  run "git pull"
+  run "./autogen.sh --prefix=/usr"
+  run "make"
+  run "make install"
+}
+
 # Make a distribution tarball with the generated files, kernel and modules
 make_dist(){
   debug "Create a tarball with the generated files, kernel and modules ..."
@@ -133,6 +160,10 @@ build_sunxi_boards
 get_fex_configuration
 
 build_linux_kernel
+
+build_libmodbus
+
+build_xmz
 
 make_dist
 

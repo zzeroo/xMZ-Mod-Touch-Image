@@ -26,46 +26,27 @@ create_loop_device_with_offset(){
 	run "sudo losetup --offset $[43008 * 512] /dev/loop12 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || exit 1"
 }
 
-extract_kernel_and_tools(){
-  debug "Copy in the kernel and tools tar ..."
-  run "sudo tar xfz files-kernel-modules-*.tgz -C ${OUTPUT_DIR}/"
-}
 
-# Write bootloader
-write_bootloader(){
-  debug "Write bootloader ..."
-	run "sudo dd if=/dev/zero of=/dev/loop10 bs=1k count=1023 seek=1"
-	run "sudo dd if=${OUTPUT_DIR}/files-kernel-modules/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
-}
-
-create_boot_script(){
-  debug "Create boot script uEnv.txt ..."
+mount_image_partition_2(){
+  debug "Mount image partition 2 ..."
   mnt=/tmp/disk
   run "export mnt=/tmp/disk"
   run "[[ ! -d ${mnt}  ]] && sudo mkdir ${mnt}"
-  run "sudo mount /dev/loop11 ${mnt}"
-  run "cat <<-'EOF' |sudo tee ${mnt}/uEnv.txt
-  bootargs=console=ttyS0,115200 disp.screen0_output_mode=EDID:1024x768p50 hdmi.audio=EDID:0 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait
-  aload_script=fatload mmc 0 0x43000000 script.bin;
-  aload_kernel=fatload mmc 0 0x48000000 uImage;bootm 0x48000000;
-  uenvcmd=run aload_script aload_kernel
-EOF"
+  run "sudo mount /dev/loop12 ${mnt}"
 }
 
-copy_in_kernel(){
-  debug "Copy in kernel ..."
-  run "sudo cp ${OUTPUT_DIR}/files-kernel-modules/uImage ${mnt}/"
+copy_in_basic_filesystem(){
+  debug "Copy in basic filesystem ..."
+  run "sudo rsync -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production/* /tmp/disk"
 }
 
-copy_in_script_bin(){
-  debug "Copy in script.bin ..."
-  run "sudo cp ${OUTPUT_DIR}/files-kernel-modules/banana_pro_7lcd.bin ${mnt}/script.bin"
-}
+
 
 cleanup_mount(){
   debug "Umount ${mnt} ..."
   run "sudo umount ${mnt}"
 }
+
 
 cleanup_loop_devices(){
 	debug "Destroy loop devices ..."
@@ -90,15 +71,9 @@ create_loop_device
 
 create_loop_device_with_offset
 
-extract_kernel_and_tools
+mount_image_partition_2
 
-write_bootloader
-
-create_boot_script
-
-copy_in_kernel
-
-copy_in_script_bin
+copy_in_basic_filesystem
 
 cleanup_mount
 

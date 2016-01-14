@@ -4,7 +4,7 @@
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.0.1
+SCRIPTVERSION=0.0.2
 EXAMPLE="./`basename $0` -o /mnt/ramdisk -s"
 
 # generic functions
@@ -59,7 +59,7 @@ copy_in_kernel(){
 
 copy_in_modules(){
   debug "Copy in kernel modules (partition2) ..."
-  run "sudo mount /dev/loop11 ${mnt}"
+  run "sudo mount /dev/loop12 ${mnt}"
   run "sudo mkdir -p ${mnt}/lib/modules"
   run "sudo cp -r ${OUTPUT_DIR}/files-kernel-modules/3.4.* ${mnt}/lib/modules/"
 }
