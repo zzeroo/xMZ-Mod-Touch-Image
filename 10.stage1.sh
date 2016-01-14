@@ -5,12 +5,7 @@
 # Parameters
 # script verion, imcrement on change
 SCRIPTVERSION=0.0.2
-# Name of the image, the file is located in script dir,
-# or can given with the "output_dir" parameter
-IMAGE_NAME=custom-image.img
-# Image size in mega byte
-IMAGE_SIZE_MB=3000
-
+EXAMPLE="./`basename $0` -o /mnt/ramdisk -s"
 
 # generic functions
 # echo_b(), and debug()
@@ -21,7 +16,7 @@ source ./lib/generic_functions.sh
 # if the image file not exists, or it exists and the --force parameter was given
 create_image(){
 	debug "Create image ..."
-	if [[ -z "${OUTPUT_DIR}/${IMAGE_NAME}" ]] || [[ -f "${OUTPUT_DIR}/${IMAGE_NAME}" && x"$FORCE" = "xtrue" ]]; then
+	if [[ ! -f "${OUTPUT_DIR}/${IMAGE_NAME}" ]] || [[ -f "${OUTPUT_DIR}/${IMAGE_NAME}" && x"$FORCE" = "xtrue" ]]; then
 		run "dd if=/dev/zero of=\"${OUTPUT_DIR}/${IMAGE_NAME}\" bs=1024 count=$[$IMAGE_SIZE_MB*1024]"
 	else
 		echo "Error: The file ${OUTPUT_DIR}/${IMAGE_NAME} already exist!"
@@ -81,6 +76,11 @@ clean_loop_devices(){
 # include option parser
 source ./lib/option_parser.sh
 
+# Name of the image, the file is located in script dir,
+# or can given with the "output_dir" parameter
+IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage-image.img
+# Image size in mega byte
+IMAGE_SIZE_MB=3000
 
 create_image
 
