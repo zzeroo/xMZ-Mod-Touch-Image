@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Helper
-NUM_CPU=`grep -c "^processor" /proc/cpuinfo`
-alias make="make -j$[$NUM_CPU + 1]"
-
 # Functions and logic
 # Bold echo commands
 bold=$(tput bold)
