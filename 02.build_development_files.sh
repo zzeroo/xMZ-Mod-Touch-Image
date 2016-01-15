@@ -27,7 +27,7 @@ install_dependencies(){
   run "sudo apt-get install -y build-essential u-boot-tools"
   run "sudo apt-get install -y libusb-1.0-0-dev git wget fakeroot kernel-package zlib1g-dev libncurses5-dev"
   run "sudo apt-get install -y pkg-config"
-  run "alias make=make -j$[`nproc` + 1]"
+  run "alias make=\"make -j$[`nproc` + 1]\""
 }
 
 # # OPTION1: all files in so named Board Support Package (BSP), NOT USED!
