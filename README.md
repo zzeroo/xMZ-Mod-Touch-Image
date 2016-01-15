@@ -25,4 +25,9 @@ Afterwards this files are packed into an tar archive.
 
 
 
+# Source code
+
+- https://github.com/zzeroo/xMZ-Mod-Touch-Image.git
+- https://github.com/zzeroo/xMZ-Mod-Touch-GUI.git
+
 
