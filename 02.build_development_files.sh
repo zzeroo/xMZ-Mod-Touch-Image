@@ -8,6 +8,8 @@ EXAMPLE="./`basename $0` -s"
 # script verion, imcrement on change
 SCRIPTVERSION=0.1.7
 
+set -e
+
 
 # include generic functions (echo_b(), and debug() and so on)
 source ./lib/generic_functions.sh
@@ -27,7 +29,7 @@ install_dependencies(){
   run "sudo apt-get install -y build-essential u-boot-tools"
   run "sudo apt-get install -y libusb-1.0-0-dev git wget fakeroot kernel-package zlib1g-dev libncurses5-dev"
   run "sudo apt-get install -y pkg-config"
-  run "alias make=\"make -j$[`nproc` + 1]\""
+  run "make -j$[`nproc` + 1]"
 }
 
 # # OPTION1: all files in so named Board Support Package (BSP), NOT USED!
@@ -50,7 +52,7 @@ build_uboot(){
   run "cd u-boot-sunxi"
   run "git pull"
   run "make BananaPro_config"
-  run "make || exit"
+  run "make -j$[`nproc` + 1]"
 }
 
 build_sunxi_tools(){
@@ -60,7 +62,7 @@ build_sunxi_tools(){
   run "[[ ! -d sunxi-tools ]] && git clone https://github.com/LeMaker/sunxi-tools.git"
   run "cd sunxi-tools"
   run "git pull"
-  run "make || exit"
+  run "make -j$[`nproc` + 1]"
 }
 
 build_sunxi_boards(){
@@ -88,7 +90,7 @@ build_linux_kernel(){
   run "make ARCH=arm sun7i_defconfig"
   run "# FIXME: Include custom config"
   run "# make ARCH=arm menuconfig"
-  run "make ARCH=arm uImage modules || exit"
+  run "make -j$[`nproc` + 1] ARCH=arm uImage modules"
   run "make ARCH=arm INSTALL_MOD_PATH=output modules_install"
 }
 
@@ -102,7 +104,7 @@ build_libmodbus(){
   run "git pull"
   run "./autogen.sh"
   run "./configure --prefix=/usr"
-  run "make || exit"
+  run "make -j$[`nproc` + 1]"
   run "make install"
 }
 
@@ -116,7 +118,7 @@ build_xmz(){
   run "cd xMZ-Mod-Touch-GUI"
   run "git pull"
   run "./autogen.sh --prefix=/usr"
-  run "make || exit"
+  run "make -j$[`nproc` + 1]"
   run "make install"
 }
 
