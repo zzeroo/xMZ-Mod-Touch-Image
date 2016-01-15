@@ -8,6 +8,8 @@ EXAMPLE="./`basename $0` -s"
 # script verion, imcrement on change
 SCRIPTVERSION=0.1.7
 
+# Allways exit on each error
+set -x
 
 # include generic functions (echo_b(), and debug() and so on)
 source ./lib/generic_functions.sh
