@@ -111,15 +111,15 @@ build_libmodbus(){
 build_xmz(){
   debug "Fetch and build the xMZ-Mod-Touch GUI ..."
   run "# https://github.com/zzeroo/xMZ-Mod-Touch-GUI.git"
-  run "apt-get install -y libgtk-3-dev gsettings-desktop-schemas-dev libgee-dev libsqlite3-dev inttool"
+  run "apt-get install -y libgtk-3-dev gsettings-desktop-schemas-dev libgee-dev libsqlite3-dev"
   run "apt-get install -y libgirepository1.0-dev gnome-common valac"
 	run "cd ${OUTPUT_DIR}"
   run "[[ ! -d xMZ-Mod-Touch-GUI ]] && git clone https://github.com/zzeroo/xMZ-Mod-Touch-GUI.git --depth=1"
   run "cd xMZ-Mod-Touch-GUI"
   run "git pull"
   run "./autogen.sh --prefix=/usr"
-  run "make -j$[`nproc` + 1]"
-  run "make install"
+  run "make"
+  run "make dist"
 }
 
 # Make a distribution tarball with the generated files, kernel and modules
@@ -131,6 +131,7 @@ make_dist(){
   run "cp ./linux-sunxi/arch/arm/boot/uImage files-kernel-modules/"
   run "cp ./fex_configuration/bin/banana_pro_7lcd.bin files-kernel-modules/"
   run "cp -r ./linux-sunxi/output/lib/modules/3.4* files-kernel-modules/"
+  run "cp ./xMZ-Mod-Touch-GUI/xmz-*.tar.xz ./"
   run "tar cfvz files-kernel-modules-${SCRIPTVERSION}.tgz files-kernel-modules/"
   run "rm -rf files-kernel-modules"
   run "# sudo cp /var/lib/container/${DISTRIBUTION}_armhf-development/root/files-kernel-modules-${SCRIPTVERSION}.tgz ."

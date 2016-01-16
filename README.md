@@ -13,7 +13,8 @@ Then 2 systemd-nspawn containers are derived from this basic template container.
 ### 02.build_development_files.sh
 
 This script must be called into the development systemd-nspawn container.
-It builds needed tools (sunxi) and the linux kernel.
+The debian OS must be jessie.
+It builds needed tools (sunxi), the linux kernel and the xMZ-Mod-Touch-GUI.
 Afterwards this files are packed into an tar archive.
 
 ### 03.setup_production_container.sh
