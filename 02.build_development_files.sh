@@ -96,12 +96,134 @@ build_xmz(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && make install\""
 }
 
+enable_mali_drivers(){
+  debug "Enable mali drivers ..."
+  run "echo \"
+  mali
+  ump
+  mali_drm\" | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/modules"
+}
+
+install_weston(){
+  debug "Install weston ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y weston"
+}
+
+setup_weston(){
+  debug "Setup weston ..."
+  run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.config"
+  run "echo \"
+    [core]
+    backend=fbdev-backend.so
+
+    [shell]
+    panel-location=none
+    locking=false
+    animation=zoom
+    startup-animation=fade
+
+    [input-method]
+    path=/usr/lib/weston/weston-keyboard
+
+    [libinput]
+    enable_tap=true
+
+    [screen-share]
+    command=/usr/bin/weston --backend=rdp-backend.so --shell=fullscreen-shell.so --no-clients-resize\" | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.config/weston.ini"
+}
+
+setup_systemd_weston_unit(){
+  debug "Configure systemd to autostart weston ..."
+  run "sudo cat >${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/systemd/system/weston.service <<'EOF'
+    #
+    # weston systemd service unit file
+    #
+
+    [Unit]
+    Description=Weston launcher
+    # Wants=syslog.target dbus.service
+    After=systemd-user-sessions.service
+
+    [Service]
+    Environment=PATH=/usr/bin:/bin:/usr/sbin:/sbin
+    Environment=HOME=/root
+    ExecStart=/root/weston.sh
+    Restart=always
+    RestartSec=10
+
+    [Install]
+    Alias=display-manager.service
+    WantedBy=graphical.target
+EOF"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development systemctl enable weston.service"
+}
+
+setup_systemd_xmz_unit(){
+  debug "Configure systemd to autostart xMZ-Mod-Touch-GUI ..."
+  run "cat >/etc/systemd/system/xmz-mod-touch-gui.service <<'EOF'
+    #
+    # xmz-mod-touch-gui systemd service unit file
+    #
+
+    [Unit]
+    Description=xMZ-Mod_Touch launcher
+    # Wants=syslog.target dbus.service
+    After=weston.service
+
+    [Service]
+    Environment=\"XDG_RUNTIME_DIR=/run/shm/wayland\"
+    Environment=\"GDK_BACKEND=wayland\"
+    Environment=\"XMZ_HARDWARE=0.1.0\"
+    ExecStart=/usr/bin/xmz-mod-touch-gui
+    Restart=always
+    RestartSec=10
+
+    [Install]
+    Alias=xmz.service
+    WantedBy=graphical.target
+EOF"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development systemctl enable xmz-mod-touch-gui.service"
+}
+
+
+setup_dotfiles(){
+  debug "Setup dotfiles ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -qq -y vim zsh tmux git curl"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d .dotfiles ]] && git clone https://github.com/zzeroo/.dotfiles.git || true\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/.dotfiles && ./install.sh\""
+}
+
+
+# create_weston_sh(){
+# in_chroot "cat >/root/weston.sh" <<'EOF'
+# #!/bin/bash
+# #
+# # Weston startup file.
+# #   Dieses Script erstellt die Umgebung und startet weston
+# export XDG_CONFIG_HOME="/etc"
+# export XORGCONFIG="/etc/xorg.conf"
+#
+# if test -z "${XDG_RUNTIME_DIR}"; then
+#     export XDG_RUNTIME_DIR="/run/shm/wayland"
+#     if ! test -d "${XDG_RUNTIME_DIR}"; then
+#         mkdir "${XDG_RUNTIME_DIR}"
+#         chmod 0700 "${XDG_RUNTIME_DIR}"
+#     fi
+# fi
+#
+# /usr/bin/weston --tty=1 --log=/var/log/weston.log
+# EOF
+# in_chroot "chmod +x /root/weston.sh"
+# }
+
 
 # Main part of the script
 
 # include option parser
 source ./lib/option_parser.sh
 
+enable_mali_drivers
+exit
 
 install_dependencies
 
@@ -123,7 +245,7 @@ build_libmodbus
 
 build_xmz
 
-
+enable_mali_drivers
 
 
 
