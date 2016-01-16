@@ -28,7 +28,10 @@ add_qemu() {
 print_quemu_setup() {
   debug "Print qemu setup ..."
   run "# Error: qemu, static linked missing!"
-  run "# These commands are needed to setup qemu on the developer maschine."
+  run "# Install via apt:"
+  run "# sudo apt-get install -y qemu-user-static binfmt-support"
+  run "#"
+  run "# Or build from source:"
   run "# apt-get install build-essential pkg-config zlib1g-dev libglib2.0-dev autoconf libtool"
   run "# git submodule update --init pixman"
   run "# git clone git://git.qemu-project.org/qemu.git"
@@ -36,7 +39,7 @@ print_quemu_setup() {
   run "# mkdir build"
   run "# cd build"
   run "# ../configure --static --target-list=\"x86_64-linux-user arm-linux-user armeb-linux-user\"  --prefix=/usr"
-  run "# make -j9"
+  run "# make -j$(nproc)"
   run "# sudo make install"
 }
 
@@ -44,6 +47,12 @@ debootstrap_template_container(){
   debug "Bootstrapping ${DISTRIBUTION} to ${CONTAINER_DIR} ..."
   run "# sudo debootstrap --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/"
   run "sudo debootstrap --variant=minbase --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/"
+}
+
+# This function prepares the
+prepare_template_container(){
+  debug "Prepare template container ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template apt-get install -y sudo vim git"
 }
 
 derive_development_container(){
@@ -75,6 +84,8 @@ source ./lib/option_parser.sh
 add_qemu
 
 debootstrap_template_container
+
+prepare_template_container
 
 derive_development_container
 derive_production_container

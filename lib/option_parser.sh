@@ -55,10 +55,11 @@ done
 # Parameter setup, default values
 # If output dir is not given as parameter, use the current dir.
 [ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="/root"
+# TODO: replace hard coded CONTAINER_DIR paths in the scripts
 # If container_dir is not set, we use the systemd-nspawn default path
 [ x"${CONTAINER_DIR}" = x ] && CONTAINER_DIR="/var/lib/container"
 # If distribution is not given as parameter we use debian sid.
-[ x"${DISTRIBUTION}" = x ] && DISTRIBUTION="sid"
+[ x"${DISTRIBUTION}" = x ] && DISTRIBUTION="jessie"
 
 
 

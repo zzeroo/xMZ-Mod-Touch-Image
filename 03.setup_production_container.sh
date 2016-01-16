@@ -12,9 +12,15 @@ EXAMPLE="./`basename $0` -o /root -s"
 source ./lib/generic_functions.sh
 
 
+# TODO: Think about packages like build-essential, can they installed in the template container?
+prepare_production_container(){
+  debug "Prepare production container ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production apt-get install -y intltool autoconf build-essential libmodbus5 libgee2 libgtk-3-0"
+}
+
 extract_xmz_gui(){
   debug "Copy in the xMZ-Mod-Touch-GUI ..."
-  run "sudo tar xfJ xmz-0.4.2.tar.xz -C ${OUTPUT_DIR}/"
+  run "sudo tar xfJ xmz-0.4.2.tar.xz -C ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production/root/"
 }
 
 
@@ -29,6 +35,8 @@ source ./lib/option_parser.sh
 # or can given with the "output_dir" parameter
 IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage-image.img
 
+
+prepare_production_container
 
 extract_xmz_gui
 
