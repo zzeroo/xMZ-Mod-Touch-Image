@@ -4,13 +4,12 @@
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.0.2
-EXAMPLE="./`basename $0` -o /mnt/ramdisk -s"
+SCRIPTVERSION=0.0.8
+EXAMPLE="./`basename $0` -s"
 
 # generic functions
 # echo_b(), and debug()
 source ./lib/generic_functions.sh
-
 
 
 # Create a loop device
@@ -26,21 +25,15 @@ create_loop_device_with_offset(){
 	run "sudo losetup --offset $[43008 * 512] /dev/loop12 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || exit 1"
 }
 
-extract_kernel_and_tools(){
-  debug "Copy in the kernel and tools tar ..."
-  run "sudo tar xfz files-kernel-modules-*.tgz -C ${OUTPUT_DIR}/"
-}
-
 # Write bootloader
 write_bootloader(){
   debug "Write bootloader ..."
 	run "sudo dd if=/dev/zero of=/dev/loop10 bs=1k count=1023 seek=1"
-	run "sudo dd if=${OUTPUT_DIR}/files-kernel-modules/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
+	run "sudo dd if=${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/u-boot-sunxi/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
 }
 
 create_boot_script(){
   debug "Create boot script uEnv.txt ..."
-  mnt=/tmp/disk
   run "export mnt=/tmp/disk"
   run "[[ ! -d ${mnt}  ]] && sudo mkdir ${mnt}"
   run "sudo mount /dev/loop11 ${mnt}"
@@ -54,19 +47,19 @@ EOF"
 
 copy_in_kernel(){
   debug "Copy in kernel (partition1) ..."
-  run "sudo cp ${OUTPUT_DIR}/files-kernel-modules/uImage ${mnt}/"
+  run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
 }
 
 copy_in_modules(){
   debug "Copy in kernel modules (partition2) ..."
   run "sudo mount /dev/loop12 ${mnt}"
   run "sudo mkdir -p ${mnt}/lib/modules"
-  run "sudo cp -r ${OUTPUT_DIR}/files-kernel-modules/3.4.* ${mnt}/lib/modules/"
+  run "sudo cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/out/ ${mnt}/"
 }
 
 copy_in_script_bin(){
   debug "Copy in script.bin ..."
-  run "sudo cp ${OUTPUT_DIR}/files-kernel-modules/banana_pro_7lcd.bin ${mnt}/script.bin"
+  run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/fex_configuration/bin/banana_pro_7lcd.bin ${mnt}/script.bin"
 }
 
 cleanup_mount(){
@@ -97,8 +90,6 @@ IMAGE_SIZE_MB=3000
 create_loop_device
 
 create_loop_device_with_offset
-
-extract_kernel_and_tools
 
 write_bootloader
 

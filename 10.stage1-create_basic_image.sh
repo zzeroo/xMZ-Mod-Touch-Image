@@ -5,7 +5,7 @@
 # Parameters
 # script verion, imcrement on change
 SCRIPTVERSION=0.0.2
-EXAMPLE="./`basename $0` -o /mnt/ramdisk -s"
+EXAMPLE="./`basename $0` -s"
 
 # generic functions
 # echo_b(), and debug()
