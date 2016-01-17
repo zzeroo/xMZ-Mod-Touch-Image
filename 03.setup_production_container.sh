@@ -2,14 +2,15 @@
 #
 # This script must be called into the systemd-nspawn production container
 
+EXAMPLE="./`basename $0` -s"
+#
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.0.1
-EXAMPLE="./`basename $0` -o /root -s"
+SCRIPTVERSION=0.1.9
 
-# generic functions
-# echo_b(), and debug()
-source ./lib/generic_functions.sh
+
+# include generic functions (echo_b(), and debug() and so on)
+source "$(dirname $0)/lib/generic_functions.sh"
 
 
 # TODO: Think about packages like build-essential, can they installed in the template container?
@@ -29,7 +30,7 @@ extract_xmz_gui(){
 # Main part of the script
 
 # include option parser
-source ./lib/option_parser.sh
+source "$(dirname $0)/lib/option_parser.sh"
 
 # Name of the image, the file is located in script dir,
 # or can given with the "output_dir" parameter
@@ -39,11 +40,4 @@ IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage-image.img
 prepare_production_container
 
 extract_xmz_gui
-
-
-
-
-
-
-
 

@@ -6,8 +6,8 @@ if [[ $? != 4 ]]; then
 	exit 1
 fi
 
-SHORT=o:c:d:svfh
-LONG=output:,container_dir:distribution:,simulate,verbose,force,help
+SHORT=o:c:e:d:svfh
+LONG=output:,container_dir:,environment:,distribution:,simulate,verbose,force,help
 
 PARSED=`getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@"`
 if [[ $? != 0 ]]; then
@@ -23,6 +23,10 @@ while true; do
 			;;
 		-c|--container_dir)
 			CONTAINER_DIR="$2"
+			shift 2 # past argument
+			;;
+		-e|--environment)
+			ENVIRONMENT="$2"
 			shift 2 # past argument
 			;;
 		-d|--distribution)
@@ -54,10 +58,12 @@ done
 
 # Parameter setup, default values
 # If output dir is not given as parameter, use the current dir.
-[ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="/root"
+[ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="`pwd`"
 # TODO: replace hard coded CONTAINER_DIR paths in the scripts
 # If container_dir is not set, we use the systemd-nspawn default path
 [ x"${CONTAINER_DIR}" = x ] && CONTAINER_DIR="/var/lib/container"
+# default environent: production
+[ x"${ENVIRONMENT}" = x ] && ENVIRONMENT="production"
 # If distribution is not given as parameter we use debian sid.
 [ x"${DISTRIBUTION}" = x ] && DISTRIBUTION="jessie"
 

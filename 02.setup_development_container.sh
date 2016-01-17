@@ -6,12 +6,14 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.1.7
-
+SCRIPTVERSION=0.1.9
 
 
 # include generic functions (echo_b(), and debug() and so on)
-source ./lib/generic_functions.sh
+source "$(dirname $0)/lib/generic_functions.sh"
+
+
+
 # sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development
 # sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/ && /bin/bash ./configure --prefix=/usr\"
 
@@ -218,7 +220,7 @@ setup_dotfiles(){
 # Main part of the script
 
 # include option parser
-source ./lib/option_parser.sh
+source "$(dirname $0)/lib/option_parser.sh"
 
 
 
@@ -253,10 +255,4 @@ setup_weston
 setup_systemd_weston_unit
 
 setup_dotfiles
-
-
-
-
-
-
 

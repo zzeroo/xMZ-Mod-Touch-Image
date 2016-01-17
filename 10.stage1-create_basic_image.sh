@@ -2,15 +2,15 @@
 #
 # This script creates a basic image file.
 
+EXAMPLE="./`basename $0` -s"
+#
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.0.2
-EXAMPLE="./`basename $0` -s"
+SCRIPTVERSION=0.1.9
 
-# generic functions
-# echo_b(), and debug()
-source ./lib/generic_functions.sh
 
+# include generic functions (echo_b(), and debug() and so on)
+source "$(dirname $0)/lib/generic_functions.sh"
 
 # This function creates an image,
 # if the image file not exists, or it exists and the --force parameter was given
@@ -34,7 +34,7 @@ create_loop_device(){
 # Create the partition layout
 create_partitions(){
 	debug "Create partitions on /dev/loop10 ..."
-	run "sudo fdisk /dev/loop10 <<-EOF
+	run "sudo fdisk /dev/loop10 <<EOF
 	o
 	n
 	p
@@ -50,7 +50,7 @@ create_partitions(){
 	1
 	7
 	w
-	EOF"
+EOF"
 }
 # Create loop devices with offset
 create_loop_device_with_offset(){
@@ -74,7 +74,7 @@ cleanup_loop_devices(){
 # Main part of the script
 
 # include option parser
-source ./lib/option_parser.sh
+source "$(dirname $0)/lib/option_parser.sh"
 
 # Name of the image, the file is located in script dir,
 # or can given with the "output_dir" parameter
@@ -93,15 +93,4 @@ create_loop_device_with_offset
 make_filesystems
 
 cleanup_loop_devices
-
-
-
-
-
-
-
-
-
-
-
 

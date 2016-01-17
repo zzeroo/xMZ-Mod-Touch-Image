@@ -2,14 +2,15 @@
 #
 # This script creates a basic image file.
 
+EXAMPLE="./`basename $0` -s"
+#
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.0.1
-EXAMPLE="./`basename $0` -o /mnt/ramdisk -s"
+SCRIPTVERSION=0.1.9
 
-# generic functions
-# echo_b(), and debug()
-source ./lib/generic_functions.sh
+
+# include generic functions (echo_b(), and debug() and so on)
+source "$(dirname $0)/lib/generic_functions.sh"
 
 
 
@@ -37,7 +38,7 @@ mount_image_partition_2(){
 
 copy_in_basic_filesystem(){
   debug "Copy in basic filesystem ..."
-  run "sudo rsync -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production/* /tmp/disk"
+  run "sudo rsync -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/* /tmp/disk"
 }
 
 
@@ -57,7 +58,7 @@ cleanup_loop_devices(){
 # Main part of the script
 
 # include option parser
-source ./lib/option_parser.sh
+source "$(dirname $0)/lib/option_parser.sh"
 
 # Name of the image, the file is located in script dir,
 # or can given with the "output_dir" parameter
@@ -78,13 +79,4 @@ copy_in_basic_filesystem
 cleanup_mount
 
 cleanup_loop_devices
-
-
-
-
-
-
-
-
-
 

@@ -21,16 +21,18 @@ example() {
 # Show help, how is the programm called
 show_help(){
 	echo
-	echo -e "Usage: `basename $0`\t[-o|--output_dir] [-v|--verbose] [-s|--simulate] [-f|--force] [-h|--help]"
+  echo_b "Usage:"
+	echo -e "\t`basename $0`\t[-o|--output_dir] [-v|--verbose] [-s|--simulate] [-f|--force] [-h|--help]"
 	echo
 	echo_b "Arguments:"
-  echo -e "-o, --output_dir\tWere should the output files created (default: current working dir)"
-  echo -e "-c, --container_dir\tWhere is the container store path (default: /var/lib/container/)"
-  echo -e "-d, --distribution\tDebian distribution used by debootstrap (default: sid)"
-	echo -e "-v, --verbose\t\tShow witch command was called."
-	echo -e "-s, --simulate\t\tPrint each command, but don't execute it."
-	echo -e "-f, --force\t\tOverride existing files, DANGER!"
-	echo -e "-h, --help\t\tShow this output."
+  echo -e "\t-o, --output_dir\tWere should the output files created (default: current working dir)"
+  echo -e "\t-c, --container_dir\tWhere is the container store path (default: /var/lib/container/)"
+  echo -e "\t-e, --environment\tEnvironment should be production or development, but can be all value, too (default: production)"
+  echo -e "\t-d, --distribution\tDebian distribution used by debootstrap (default: sid)"
+	echo -e "\t-v, --verbose\t\tShow which commands are called"
+	echo -e "\t-s, --simulate\t\tPrint each command, but don't execute it"
+	echo -e "\t-f, --force\t\tOverride existing files, DANGER!"
+	echo -e "\t-h, --help\t\tShow this output"
 	echo
   example "${EXAMPLE}"
 	echo "Script version: ${SCRIPTVERSION}"
@@ -51,6 +53,7 @@ debug() {
 run() {
   if [[ x"${SIMULATE}" == "xtrue" ]]; then
 		echo "$1"
+		echo
   elif [[ x"${VERBOSE}" == "xtrue" && ! x"${SIMULATE}" == "xtrue" ]]; then
 		echo ">> $1"
 		eval "$1"

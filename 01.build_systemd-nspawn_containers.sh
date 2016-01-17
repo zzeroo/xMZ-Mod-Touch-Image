@@ -6,11 +6,11 @@ EXAMPLE="./`basename $0` -s"
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.0.7
+SCRIPTVERSION=0.1.9
 
 
 # include generic functions (echo_b(), and debug() and so on)
-source ./lib/generic_functions.sh
+source "$(dirname $0)/lib/generic_functions.sh"
 
 
 add_qemu() {
@@ -78,7 +78,7 @@ set_passwd_in_production_container(){
 # Main part of the script
 
 # include option parser
-source ./lib/option_parser.sh
+source "$(dirname $0)/lib/option_parser.sh"
 
 
 add_qemu
@@ -92,12 +92,4 @@ derive_production_container
 
 set_passwd_in_development_container
 set_passwd_in_production_container
-
-
-
-
-
-
-
-
 
