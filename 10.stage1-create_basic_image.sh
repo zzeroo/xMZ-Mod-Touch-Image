@@ -16,7 +16,7 @@ source "$(dirname $0)/lib/generic_functions.sh"
 # if the image file not exists, or it exists and the --force parameter was given
 create_image(){
 	debug "Create image ..."
-	if [[ ! -f "${OUTPUT_DIR}/${IMAGE_NAME}" ]] || [[ -f "${OUTPUT_DIR}/${IMAGE_NAME}" && x"$FORCE" = "xtrue" ]]; then
+	if [[ x"$SIMULATE" = "xtrue" ]] || [[ ! -f "${OUTPUT_DIR}/${IMAGE_NAME}" ]] || [[ -f "${OUTPUT_DIR}/${IMAGE_NAME}" && x"$FORCE" = "xtrue" ]]; then
 		run "dd if=/dev/zero of=\"${OUTPUT_DIR}/${IMAGE_NAME}\" bs=1024 count=$[$IMAGE_SIZE_MB*1024]"
 	else
 		echo "Error: The file ${OUTPUT_DIR}/${IMAGE_NAME} already exist!"
