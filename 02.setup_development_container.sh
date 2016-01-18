@@ -115,7 +115,7 @@ setup_systemd_xmz_unit(){
     Environment=\"XDG_RUNTIME_DIR=/run/shm/wayland\"
     Environment=\"GDK_BACKEND=wayland\"
     Environment=\"XMZ_HARDWARE=0.1.0\"
-    ExecStart=/usr/bin/xmz-mod-touch-gui
+    ExecStart=/usr/bin/xmz
     Restart=always
     RestartSec=10
 
@@ -186,6 +186,28 @@ setup_systemd_weston_unit(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development systemctl enable weston.service"
 }
 
+create_weston_sh(){
+  debug "Create weston.sh (weston start script) ..."
+  run "echo \"
+    #!/bin/bash
+    #
+    # Weston startup file.
+    #   Dieses Script erstellt die Umgebung und startet weston
+    export XDG_CONFIG_HOME=\"/etc\"
+    export XORGCONFIG=\"/etc/xorg.conf\"
+
+    if test -z \"${XDG_RUNTIME_DIR}\"; then
+        export XDG_RUNTIME_DIR=\"/run/shm/wayland\"
+        if ! test -d \"${XDG_RUNTIME_DIR}\"; then
+            mkdir \"${XDG_RUNTIME_DIR}\"
+            chmod 0700 \"${XDG_RUNTIME_DIR}\"
+        fi
+    fi
+
+    /usr/bin/weston --tty=1 --log=/var/log/weston.log \" | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/weston.sh"
+  run "chmod +x ${CONTAINER_DIR}/${DISTRIBUTION}/root/weston.sh"
+}
+
 
 setup_dotfiles(){
   debug "Setup dotfiles ..."
@@ -194,28 +216,6 @@ setup_dotfiles(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/.dotfiles && ./install.sh\""
 }
 
-
-# create_weston_sh(){
-# in_chroot "cat >/root/weston.sh" <<'EOF'
-# #!/bin/bash
-# #
-# # Weston startup file.
-# #   Dieses Script erstellt die Umgebung und startet weston
-# export XDG_CONFIG_HOME="/etc"
-# export XORGCONFIG="/etc/xorg.conf"
-#
-# if test -z "${XDG_RUNTIME_DIR}"; then
-#     export XDG_RUNTIME_DIR="/run/shm/wayland"
-#     if ! test -d "${XDG_RUNTIME_DIR}"; then
-#         mkdir "${XDG_RUNTIME_DIR}"
-#         chmod 0700 "${XDG_RUNTIME_DIR}"
-#     fi
-# fi
-#
-# /usr/bin/weston --tty=1 --log=/var/log/weston.log
-# EOF
-# in_chroot "chmod +x /root/weston.sh"
-# }
 
 
 # Main part of the script
@@ -254,6 +254,8 @@ install_weston
 setup_weston
 
 setup_systemd_weston_unit
+
+create_weston_sh
 
 setup_dotfiles
 

@@ -80,7 +80,7 @@ source "$(dirname $0)/lib/option_parser.sh"
 # or can given with the "output_dir" parameter
 IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage-image.img
 # Image size in mega byte
-IMAGE_SIZE_MB=3000
+IMAGE_SIZE_MB=6000
 
 create_image
 
