@@ -19,12 +19,6 @@ prepare_production_container(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production apt-get install -y intltool autoconf build-essential libmodbus5 libgee2 libgtk-3-0"
 }
 
-extract_xmz_gui(){
-  debug "Copy in the xMZ-Mod-Touch-GUI ..."
-  run "sudo tar xfJ xmz-0.4.2.tar.xz -C ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production/root/"
-}
-
-
 
 
 # Main part of the script
@@ -39,5 +33,4 @@ IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage-image.img
 
 prepare_production_container
 
-extract_xmz_gui
 

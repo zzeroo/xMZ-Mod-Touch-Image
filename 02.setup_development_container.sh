@@ -93,7 +93,8 @@ build_xmz(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d xMZ-Mod-Touch-GUI ]] && git clone https://github.com/zzeroo/xMZ-Mod-Touch-GUI.git --depth=1 || true\""
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && git pull\""
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && ./autogen.sh --prefix=/usr\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && make # -j$(nproc) dosn't work!\""
+  run "# -j$(nproc) dosn't work!\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && make\""
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && make dist\""
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && make install\""
 }

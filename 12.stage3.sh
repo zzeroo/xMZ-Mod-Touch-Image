@@ -41,6 +41,11 @@ copy_in_basic_filesystem(){
   run "sudo rsync -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/* /tmp/disk"
 }
 
+copy_in_modules(){
+  debug "Copy in kernel modules (partition2) ..."
+  run "sudo cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/output/ ${mnt}/"
+}
+
 
 
 cleanup_mount(){
@@ -75,6 +80,8 @@ create_loop_device_with_offset
 mount_image_partition_2
 
 copy_in_basic_filesystem
+
+copy_in_modules
 
 cleanup_mount
 

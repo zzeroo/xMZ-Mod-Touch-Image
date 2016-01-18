@@ -51,16 +51,9 @@ copy_in_kernel(){
   run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
 }
 
-copy_in_modules(){
-  debug "Copy in kernel modules (partition2) ..."
-  run "sudo mount /dev/loop12 ${mnt}"
-  run "sudo mkdir -p ${mnt}/lib/modules"
-  run "sudo cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/out/ ${mnt}/"
-}
-
 copy_in_script_bin(){
   debug "Copy in script.bin ..."
-  run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/fex_configuration/bin/banana_pro_7lcd.bin ${mnt}/script.bin"
+  run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/fex_configuration/bin/banana_pro_7lcd.bin ${mnt}/script.bin"
 }
 
 cleanup_mount(){
@@ -99,10 +92,6 @@ create_boot_script
 copy_in_kernel
 
 copy_in_script_bin
-
-cleanup_mount
-
-copy_in_modules
 
 cleanup_mount
 
