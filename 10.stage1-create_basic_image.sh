@@ -34,7 +34,7 @@ create_loop_device(){
 # Create the partition layout
 create_partitions(){
 	debug "Create partitions on /dev/loop10 ..."
-	run "sudo fdisk /dev/loop10 <<EOF
+	run "sudo fdisk /dev/loop10 <<-'EOF'
 	o
 	n
 	p

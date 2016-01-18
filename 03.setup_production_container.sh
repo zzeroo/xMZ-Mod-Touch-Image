@@ -19,6 +19,14 @@ prepare_production_container(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production apt-get install -y intltool autoconf build-essential libmodbus5 libgee2 libgtk-3-0"
 }
 
+setup_dotfiles(){
+  debug "Setup dotfiles ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -qq -y vim zsh tmux git curl"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d .dotfiles ]] && git clone https://github.com/zzeroo/.dotfiles.git || true\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/.dotfiles && ./install.sh\""
+}
+
+
 
 
 # Main part of the script
@@ -32,5 +40,7 @@ IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage-image.img
 
 
 prepare_production_container
+
+setup_dotfiles
 
 
