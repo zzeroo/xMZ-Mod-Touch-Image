@@ -65,7 +65,7 @@ done
 # default environent: production
 [ x"${ENVIRONMENT}" = x ] && ENVIRONMENT="production"
 # If distribution is not given as parameter we use debian sid.
-[ x"${DISTRIBUTION}" = x ] && DISTRIBUTION="jessie"
+[ x"${DISTRIBUTION}" = x ] && DISTRIBUTION="sid"
 
 
 
