@@ -153,6 +153,7 @@ setup_weston(){
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.config/weston.ini
 [core]
 backend=fbdev-backend.so
+idle-time=0
 
 [shell]
 background-image=/usr/share/backgrounds/ra-gas/Wallpaper-Desktop.png
