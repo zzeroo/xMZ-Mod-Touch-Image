@@ -15,12 +15,9 @@ source "$(dirname $0)/lib/generic_functions.sh"
 
 
 
-# sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development
-# sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/ && /bin/bash ./configure --prefix=/usr\"
-
 install_dependencies(){
   debug "Install dependencies for tools and kernel ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y build-essential pkg-config u-boot-tools libusb-1.0-0-dev git wget fakeroot kernel-package zlib1g-dev libncurses5-dev"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y build-essential pkg-config u-boot-tools libusb-1.0-0-dev zlib1g-dev"
 }
 
 
@@ -51,17 +48,6 @@ get_fex_configuration(){
   debug "Fetch fex_configuration files (fex and bin) ..."
   run "# https://github.com/LeMaker/fex_configuration"
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d fex_configuration ]] && git clone https://github.com/LeMaker/fex_configuration.git || true\""
-}
-
-build_linux_kernel(){
-  debug "Fetch and build the linux kernel ..."
-  run "# https://github.com/LeMaker/linux-sunxi"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d linux-sunxi ]] && git clone https://github.com/LeMaker/linux-sunxi.git --depth=1 || true\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && git pull\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make sun7i_defconfig\""
-  run "# FIXME: Include custom config"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make -j$(nproc) uImage modules\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make INSTALL_MOD_PATH=output modules_install\""
 }
 
 build_libmodbus(){
@@ -251,7 +237,7 @@ network={
 EOF"
 }
 setup_network_interfaces(){
-  "Seting up network interfaces ..."
+  debug "Seting up network interfaces ..."
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/network/interfaces
 # /etc/network/interfaces
 auto lo
@@ -303,13 +289,11 @@ build_sunxi_boards
 
 get_fex_configuration
 
-build_linux_kernel
-
 build_libmodbus
 
-build_xmz
-
-setup_systemd_xmz_unit
+# build_xmz
+#
+# setup_systemd_xmz_unit
 
 enable_mali_drivers
 
@@ -328,9 +312,13 @@ setup_systemd_weston_unit
 create_weston_sh
 
 setup_hostname
+
 setup_wlan
+
 setup_network_interfaces
+
 install_ssh_server
+
 setup_remote_access
 
 

@@ -27,10 +27,11 @@ create_loop_device_with_offset(){
 }
 
 # Write bootloader
+# TODO: jessie distribution hard coded
 write_bootloader(){
   debug "Write bootloader ..."
 	run "sudo dd if=/dev/zero of=/dev/loop10 bs=1k count=1023 seek=1"
-	run "sudo dd if=${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/u-boot-sunxi/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
+	run "sudo dd if=${CONTAINER_DIR}/jessie_armhf-development/root/u-boot-sunxi/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
 }
 
 create_boot_script(){
@@ -46,14 +47,16 @@ create_boot_script(){
 EOF"
 }
 
+# TODO: jessie distribution hard coded
 copy_in_kernel(){
   debug "Copy in kernel (partition1) ..."
-  run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
+  run "sudo cp ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
 }
 
+# TODO: jessie distribution hard coded
 copy_in_script_bin(){
   debug "Copy in script.bin ..."
-  run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/fex_configuration/bin/banana_pro_7lcd.bin ${mnt}/script.bin"
+  run "sudo cp ${CONTAINER_DIR}/jessie_armhf-development/root/fex_configuration/bin/banana_pro_7lcd.bin ${mnt}/script.bin"
 }
 
 cleanup_mount(){
