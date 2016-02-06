@@ -24,6 +24,23 @@ install_dependencies(){
 }
 
 
+build_uboot(){
+  debug "Build U-Boot, boot loader ..."
+  run "# https://github.com/LeMaker/u-boot-sunxi"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d u-boot-sunxi ]] && git clone https://github.com/LeMaker/u-boot-sunxi.git --depth=1 || true\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot-sunxi && git pull\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot-sunxi && make BananaPro_config\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot-sunxi && make -j$(nproc)\""
+}
+
+build_sunxi_tools(){
+  debug "Build sunxi tools a.k.a. sun4i ..."
+  run "# https://github.com/LeMaker/sunxi-tools"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d sunxi-tools  ]] && git clone https://github.com/LeMaker/sunxi-tools.git || true\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/sunxi-tools && git pull\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/sunxi-tools && make -j$(nproc)\""
+}
+
 build_linux_kernel(){
   debug "Fetch and build the linux kernel ..."
   run "# https://github.com/LeMaker/linux-sunxi"
@@ -45,6 +62,10 @@ source "$(dirname $0)/lib/option_parser.sh"
 
 
 install_dependencies
+
+build_uboot
+
+build_sunxi_tools
 
 build_linux_kernel
 
