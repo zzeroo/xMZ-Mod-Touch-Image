@@ -63,7 +63,7 @@ done
 # If container_dir is not set, we use the systemd-nspawn default path
 [ x"${CONTAINER_DIR}" = x ] && CONTAINER_DIR="/var/lib/container"
 # default environent: production
-[ x"${ENVIRONMENT}" = x ] && ENVIRONMENT="production"
+[ x"${ENVIRONMENT}" = x ] && ENVIRONMENT="development"
 # If distribution is not given as parameter we use debian sid.
 [ x"${DISTRIBUTION}" = x ] && DISTRIBUTION="sid"
 

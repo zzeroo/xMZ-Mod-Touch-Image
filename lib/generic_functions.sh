@@ -27,7 +27,7 @@ show_help(){
 	echo_b "Arguments:"
   echo -e "\t-o, --output_dir\tWere should the output files created (default: current working dir)"
   echo -e "\t-c, --container_dir\tWhere is the container store path (default: /var/lib/container/)"
-  echo -e "\t-e, --environment\tEnvironment should be production or development, but can be all value, too (default: production)"
+  echo -e "\t-e, --environment\tEnvironment should be production or development, but can be all value, too (default: development)"
   echo -e "\t-d, --distribution\tDebian distribution used by debootstrap (default: sid)"
 	echo -e "\t-v, --verbose\t\tShow which commands are called"
 	echo -e "\t-s, --simulate\t\tPrint each command, but don't execute it"
