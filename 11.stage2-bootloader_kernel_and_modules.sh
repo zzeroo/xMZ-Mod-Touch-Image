@@ -36,27 +36,41 @@ write_bootloader(){
 
 create_boot_script(){
   debug "Create boot script uEnv.txt ..."
+  export mnt=/tmp/disk
   run "export mnt=/tmp/disk"
   run "[[ ! -d ${mnt}  ]] && sudo mkdir ${mnt}"
   run "sudo mount /dev/loop11 ${mnt}"
-  run "cat <<-'EOF' |sudo tee ${mnt}/uEnv.txt
-  bootargs=console=ttyS0,115200 disp.screen0_output_mode=EDID:1024x768p50 hdmi.audio=EDID:0 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait consoleblank=0
-  aload_script=fatload mmc 0 0x43000000 script.bin;
-  aload_kernel=fatload mmc 0 0x48000000 uImage;bootm 0x48000000;
-  uenvcmd=run aload_script aload_kernel
+
+  if [ z${DISTRIBUTION} = "zsid" ]; then
+    run "cat <<-'EOF' |sudo tee ${mnt}/uEnv.txt
+bootargs=console=ttyS0,115200 disp.screen0_output_mode=EDID:1024x768p50 hdmi.audio=EDID:0 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait consoleblank=0
+aload_script=fatload mmc 0 0x43000000 script.bin;
+aload_kernel=fatload mmc 0 0x48000000 uImage;bootm 0x48000000;
+uenvcmd=run aload_script aload_kernel
 EOF"
+  else
+    run "cat <<-'EOF' |sudo tee ${mnt}/uEnv.txt
+bootargs=console=ttyS0,115200 disp.screen0_output_mode=EDID:1024x768p50 hdmi.audio=EDID:0 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait consoleblank=0
+aload_script=fatload mmc 0 0x43000000 script.bin;
+aload_kernel=fatload mmc 0 0x48000000 uImage;bootm 0x48000000;
+uenvcmd=run aload_script aload_kernel
+EOF"
+  fi
 }
 
-# TODO: jessie distribution hard coded
 copy_in_kernel(){
   debug "Copy in kernel (partition1) ..."
-  run "sudo cp ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
+  if [ z${DISTRIBUTION} = "zsid" ]; then
+    run "# sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux/arch/arm/boot/zImage ${mnt}/"
+    run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux/arch/arm/boot/uImage ${mnt}/"
+  else
+    run "sudo cp ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
+  fi
 }
 
-# TODO: jessie distribution hard coded
 copy_in_script_bin(){
   debug "Copy in script.bin ..."
-  run "sudo cp ${CONTAINER_DIR}/jessie_armhf-development/root/fex_configuration/bin/banana_pro_7lcd.bin ${mnt}/script.bin"
+  run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/fex_configuration/bin/banana_pro_7lcd.bin ${mnt}/script.bin"
 }
 
 cleanup_mount(){

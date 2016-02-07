@@ -38,12 +38,16 @@ mount_image_partition_2(){
 
 copy_in_basic_filesystem(){
   debug "Copy in basic filesystem ..."
-  run "sudo rsync -a --exclude={fex_configuration,libmodbus,linux-sunxi,sunxi-boards,sunxi-tools,u-boot-sunxi,xMZ-Mod-Touch-GUI} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/* /tmp/disk"
+  run "sudo rsync -a --delete --exclude={fex_configuration,libmodbus,linux,linux-sunxi,sunxi-boards,sunxi-tools,u-boot-sunxi,xMZ-Mod-Touch-GUI} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/* /tmp/disk"
 }
 
 copy_in_modules(){
   debug "Copy in kernel modules (partition2) ..."
-  run "sudo cp -r ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/output/lib ${mnt}/"
+  if [ z${DISTRIBUTION} = "zsid" ]; then
+    run "sudo cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux/output/lib ${mnt}/"
+  else
+    run "sudo cp -r ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/output/lib ${mnt}/"
+  fi
 }
 
 
