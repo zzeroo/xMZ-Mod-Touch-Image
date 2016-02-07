@@ -25,6 +25,13 @@ Afterwards this files are packed into an tar archive.
 ### 12.stage3.sh
 
 
+# Wiki
+
+There is a github.com wiki for this repository. To get it run this command
+into the repo root
+
+    git submodule init
+
 
 # Source code
 
