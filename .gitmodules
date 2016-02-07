@@ -1,0 +1,3 @@
+[submodule "wiki"]
+	path = wiki
+	url = https://github.com/zzeroo/xMZ-Mod-Touch-Image.wiki.git
