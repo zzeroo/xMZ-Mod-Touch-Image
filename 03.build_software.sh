@@ -17,7 +17,8 @@ source "$(dirname $0)/lib/generic_functions.sh"
 
 install_dependencies(){
   debug "Install dependencies ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y build-essential pkg-config u-boot-tools libusb-1.0-0-dev zlib1g-dev"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"apt-get update && apt-get upgrade -y\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y build-essential pkg-config libusb-1.0-0-dev zlib1g-dev"
 }
 
 

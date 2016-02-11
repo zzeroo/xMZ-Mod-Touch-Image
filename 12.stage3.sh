@@ -44,7 +44,8 @@ copy_in_basic_filesystem(){
 copy_in_modules(){
   debug "Copy in kernel modules (partition2) ..."
   if [ z${DISTRIBUTION} = "zsid" ]; then
-    run "sudo cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux/output/lib ${mnt}/"
+    run "# sudo cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux/output/lib ${mnt}/"
+    run "sudo cp -r ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/output/lib ${mnt}/"
   else
     run "sudo cp -r ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/output/lib ${mnt}/"
   fi

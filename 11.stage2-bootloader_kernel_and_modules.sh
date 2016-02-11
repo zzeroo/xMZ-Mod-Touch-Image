@@ -62,9 +62,11 @@ copy_in_kernel(){
   debug "Copy in kernel (partition1) ..."
   if [ z${DISTRIBUTION} = "zsid" ]; then
     run "# sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux/arch/arm/boot/zImage ${mnt}/"
-    run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux/arch/arm/boot/uImage ${mnt}/"
-  else
+    run "# sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux/arch/arm/boot/uImage ${mnt}/"
     run "sudo cp ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
+    run "# sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux/arch/arm/boot/dts/sun7i-a20-bananapro.dts ${mnt}/"
+  else
+    run "# sudo cp ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
   fi
 }
 
