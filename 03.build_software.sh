@@ -243,16 +243,24 @@ iface wlan0 inet manual
 iface default inet dhcp
 EOF"
 }
+
 install_ssh_server(){
    debug "Install OpenSSH Server ..."
    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y openssh-server"
 }
+
 setup_remote_access(){
   debug "Confiure remote access via ssh ..."
   run "sudo mkdir ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.ssh"
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.ssh/authorized_keys
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3Igwfs5fS9EPXDyHohTW72z4WfCu44nGl40j9wxqs/yn5Nc2csTILYJCRcZPB+I0qly+YlohCnQvd1/It2JWp8n2kGK1TS6Vy3C0IEWXSsvb4ZX5xFX699r9rlELOWOZyxHMeRByQ4pk2C+O0QiiUlJhYxdVA+IuoR0C+cfH+wGWW/MnSwni57znvrn5rZwrfgM4YWhMq+YUlHG+BgUb7MJ2wNSWfeuxUUItAu191WLSVFcyIox1ECQh2q8NrBPddufyfn9lRZK12TJu5JsCguDgMKGQeu3Y1m/BFbiBBy6vAh1ucgZto8zBR9b0HaNxwScsyxkNSxKtRYjUV2rIb smueller@nb-smueller
 EOF"
+}
+
+disable_screen_blank() {
+  # http://unix.stackexchange.com/questions/8056/disable-screen-blanking-on-text-console#23636
+  debug "Disable screen blanking ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"echo -ne \"\\033[9;0]\" >> /etc/issue\""
 }
 
 
@@ -303,4 +311,5 @@ install_ssh_server
 
 setup_remote_access
 
+disable_screen_blank
 
