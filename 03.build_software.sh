@@ -269,7 +269,7 @@ build_sunxi_boards
 
 get_fex_configuration
 
-build_libmodbus
+# build_libmodbus
 
 # build_xmz
 #
@@ -292,6 +292,8 @@ setup_systemd_weston_unit
 create_weston_sh
 
 setup_hostname
+
+install_wlan
 
 setup_wlan
 
