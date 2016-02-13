@@ -16,8 +16,8 @@ source "$(dirname $0)/lib/generic_functions.sh"
 add_qemu() {
   debug "Add qemu support ..."
   run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/usr/bin"
-  if [[ -f /usr/bin/qemu-arm ]]; then
-    run "sudo cp /usr/bin/qemu-arm ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/usr/bin/qemu-arm-static"
+  if [[ -f /usr/bin/qemu-arm-static ]]; then
+    run "sudo cp /usr/bin/qemu-arm-static ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/usr/bin/qemu-arm-static"
   else
     print_quemu_setup
     # If we're not on simulate mode exit here.
@@ -52,7 +52,7 @@ debootstrap_template_container(){
 # This function prepares the
 prepare_template_container(){
   debug "Prepare template container ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template apt-get install -y sudo vim git"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template /bin/bash -c \"apt-get install -y sudo vim git\""
 }
 
 derive_development_container(){
@@ -67,12 +67,12 @@ derive_production_container(){
 
 set_passwd_in_development_container(){
   debug "Set root password in development container ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development bash -c \"echo -e \\\"930440Hk\n930440Hk\\\" | passwd\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"echo -e \\\"930440Hk\n930440Hk\\\" | passwd\""
 }
 
 set_passwd_in_production_container(){
   debug "Set root password in production container ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production bash -c \"echo -e \\\"930440Hk\n930440Hk\\\" | passwd\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production /bin/bash -c \"echo -e \\\"930440Hk\n930440Hk\\\" | passwd\""
 }
 
 # Main part of the script

@@ -45,7 +45,7 @@ create_boot_script(){
     run "cat <<-'EOF' |sudo tee ${mnt}/uEnv.txt
 bootargs=console=ttyS0,115200 disp.screen0_output_mode=EDID:1024x768p50 hdmi.audio=EDID:0 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait consoleblank=0
 aload_script=fatload mmc 0 0x43000000 script.bin;
-aload_kernel=fatload mmc 0 0x48000000 uImage;bootm 0x48000000;
+aload_kernel=fatload mmc 0 0x48000000 zImage;bootz 0x48000000;
 uenvcmd=run aload_script aload_kernel
 EOF"
   else

@@ -16,8 +16,8 @@ source "$(dirname $0)/lib/generic_functions.sh"
 # TODO: Think about packages like build-essential, can they installed in the template container?
 prepare_production_container(){
   debug "Prepare production container ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get update && apt-get upgrade -y"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production apt-get install -y intltool autoconf build-essential libmodbus5 libgee2 libgtk-3-0"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"apt-get update && apt-get upgrade -y\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production /bin/bash -c \"apt-get install -y intltool autoconf build-essential libmodbus5 libgee2 libgtk-3-0\""
 }
 
 setup_dotfiles(){
