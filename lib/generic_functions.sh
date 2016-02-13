@@ -42,7 +42,9 @@ show_help(){
 # Debug
 debug() {
   # Only print if we not in sumulate mode
-  if [[ ! x"${SIMULATE}" == "xtrue" ]]; then
+  if [[ x"${SIMULATE}" == "xtrue" ]]; then
+    echo_b "# $1"
+  else
     echo_b "$1"
   fi
 }
@@ -53,7 +55,6 @@ debug() {
 run() {
   if [[ x"${SIMULATE}" == "xtrue" ]]; then
 		echo "$1"
-		echo
   elif [[ x"${VERBOSE}" == "xtrue" && ! x"${SIMULATE}" == "xtrue" ]]; then
 		echo ">> $1"
 		eval "$1"
