@@ -21,17 +21,26 @@ source "$(dirname $0)/lib/generic_functions.sh"
 install_dependencies(){
   debug "Install dependencies for tools and kernel ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"apt-get update && apt-get upgrade -y\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"apt-get install -y build-essential pkg-config git wget fakeroot kernel-package zlib1g-dev libncurses5-dev u-boot-tools\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"apt-get install -y build-essential pkg-config git wget fakeroot zlib1g-dev libncurses5-dev u-boot-tools\""
 }
 
 
 build_uboot(){
   debug "Build U-Boot, boot loader ..."
-  run "# https://github.com/LeMaker/u-boot-sunxi"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d u-boot-sunxi ]] && git clone https://github.com/LeMaker/u-boot-sunxi.git --depth=1 || true\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot-sunxi && git pull\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot-sunxi && make BananaPro_config\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot-sunxi && make -j$(nproc)\""
+  if [ z${DISTRIBUTION} = "zsid" ]; then
+    run "# git://git.denx.de/u-boot.git"
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"apt-get install -y device-tree-compiler\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d u-boot ]] && git clone git://git.denx.de/u-boot.git -b v2016.01\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot && git pull\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot && make Bananapro_defconfig\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot && make -j$(nproc)\""
+  else
+    run "# https://github.com/LeMaker/u-boot-sunxi"
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d u-boot-sunxi ]] && git clone https://github.com/LeMaker/u-boot-sunxi.git --depth=1 || true\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot-sunxi && git pull\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot-sunxi && make BananaPro_config\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot-sunxi && make -j$(nproc)\""
+  fi
 }
 
 build_sunxi_tools(){
@@ -42,15 +51,35 @@ build_sunxi_tools(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/sunxi-tools && make -j$(nproc)\""
 }
 
-build_linux_kernel(){
-  debug "Fetch and build the linux kernel ..."
-  run "# https://github.com/LeMaker/linux-sunxi"
-  run "# sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d linux-sunxi ]] && git clone https://github.com/LeMaker/linux-sunxi.git --depth=1 -b experimental/sunxi-3.10 || true\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d linux-sunxi ]] && git clone https://github.com/LeMaker/linux-sunxi.git --depth=1 || true\""
+# TODO: Split in fetch_kernel(), config_kernel() and make_kernel()
+# TODO: Include custom .config (with btrfs enabled)
+# TODO: Include cutom logo:
+#   # copy in a logo (png, 80x80 px)
+#   cd share
+#   pngtopnm logo_linux.png | ppmquant -fs 223| pnmtoplainpnm > logo_linux_clut224.ppm
+#   sudo cp logo_linux_clut224.ppm ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/drivers/video/logo/
+fetch_kernel() {
+  debug "Fetch linux kernel ..."
+  if [ z${DISTRIBUTION} = "zsid" ]; then
+    run "# https://github.com/linux-sunxi/linux-sunxi"
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d linux-sunxi ]] && git clone https://github.com/linux-sunxi/linux-sunxi.git || true\""
+  else
+    run "# https://github.com/LeMaker/linux-sunxi"
+    run "# sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d linux-sunxi ]] && git clone https://github.com/LeMaker/linux-sunxi.git --depth=1 -b experimental/sunxi-3.10 || true\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d linux-sunxi ]] && git clone https://github.com/LeMaker/linux-sunxi.git --depth=1 || true\""
+  fi
+  # Update the git repo if the dir was present, and the kernel was not fresh checked out.
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && git pull\""
+}
+
+config_kernel(){
+  debug "Configure linux kernel ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make sun7i_defconfig\""
+}
+
+build_kernel(){
   run "# FIXME: Include custom config"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make -j$(nproc) uImage dtbs\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make -j$(nproc) zImage dtbs\""
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make INSTALL_MOD_PATH=output modules modules_install\""
 }
 
@@ -69,5 +98,9 @@ build_uboot
 
 build_sunxi_tools
 
-build_linux_kernel
+fetch_kernel
+
+config_kernel
+
+build_kernel
 
