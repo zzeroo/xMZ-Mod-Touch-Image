@@ -1,6 +1,32 @@
+# Kernel
+
+# New flow
+## Maybe one script (nice if it where in rust :)
+
+* We only need one template file system
 
 
-* btrfs as root filesystem, (copy on write and other nice fatures crying for that)
-* Generate and save/ print SSH key
+Basic (template) filesystem exists?
+          |
+          |--no--> debootstrap ...
+          |
+          | yes
+          |/
+  Linux kernel exists?
+          |
+          |--no--> git clone ...
+          |
+          /yes
+    Build kernel
+          |
+          |/
+  U-boot exist?
+          |
+          |--no--> git clone ...
+          |
+          |/yes
+    Build u-boot
+          |
+          |/
 
 
