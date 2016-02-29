@@ -62,7 +62,8 @@ create_loop_device_with_offset(){
 make_filesystems(){
 	debug "Make files systems on the loop devices ..."
 	run "sudo mkfs.vfat /dev/loop11 || exit 1"
-	run "sudo mkfs.ext4 /dev/loop12 || exit 1"
+	run "sudo mkfs.btrfs /dev/loop12 || exit 1"
+	#run "sudo mkfs.ext4 /dev/loop12 || exit 1"
 }
 
 cleanup_loop_devices(){
@@ -80,7 +81,7 @@ source "$(dirname $0)/lib/option_parser.sh"
 # or can given with the "output_dir" parameter
 IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage-image.img
 # Image size in mega byte
-IMAGE_SIZE_MB=6000
+IMAGE_SIZE_MB=4000
 
 create_image
 
