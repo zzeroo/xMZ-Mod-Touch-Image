@@ -75,6 +75,31 @@ set_passwd_in_production_container(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production /bin/bash -c \"echo -e \\\"930440Hk\n930440Hk\\\" | passwd\""
 }
 
+# TODO: Only in development container, should we use it in template or not?
+enable_search_history() {
+  debug "Enable search history with 'page up' and 'page down' ..."
+  #run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production /bin/bash -c \"\""
+  run "cat <<-EOF | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.inputrc
+# alternate mappings for \"page up\" and \"page down\" to search the history
+\"\e[5~\": history-search-backward
+\"\e[6~\": history-search-forward
+EOF"
+}
+
+# TODO: Only in development container, should we use it in template or not?
+configure_bashrc() {
+  debug "configure bashrc (some alias and color) ..."
+  #run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production /bin/bash -c \"\""
+  run "cat <<-EOF | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.bashrc
+export LS_OPTIONS='--color=auto'
+eval \"`dircolors`\"
+alias ls='ls $LS_OPTIONS'
+alias ll='ls $LS_OPTIONS -l'
+alias l='ls $LS_OPTIONS -lA'
+EOF"
+}
+
+
 # Main part of the script
 
 # include option parser
