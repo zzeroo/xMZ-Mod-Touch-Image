@@ -20,6 +20,7 @@ source "$(dirname $0)/lib/generic_functions.sh"
 
 install_dependencies(){
   debug "Install dependencies for tools and kernel ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"echo \"deb http://httpredir.debian.org/debian sid main non-free\" > /etc/apt/sources.list\""
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"apt-get update && apt-get upgrade -y\""
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"apt-get install -y build-essential pkg-config git wget fakeroot zlib1g-dev libncurses5-dev u-boot-tools\""
 }
