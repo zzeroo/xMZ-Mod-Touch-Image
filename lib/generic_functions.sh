@@ -49,6 +49,12 @@ debug() {
   fi
 }
 
+# Error print error message and exit script
+error() {
+  echo "$1"
+  exit 1
+}
+
 # Simulate, debug and call the command given as the only one parameter
 # If the verbose var is set (via environent or parameter -v, --verbose)
 # the command is echoed before calling
