@@ -88,16 +88,20 @@ EOF"
 
 enable_mali_drivers(){
   debug "Enable mali drivers ..."
+  if [ z${DISTRIBUTION} = "zjessie" ]; then
   run "cat <<-'EOF' | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/modules
 mali
 ump
 mali_drm
 EOF"
+  fi
 }
 
 enable_touchscreen_driver(){
   debug "Enable touchscreen drivers ..."
-  run "echo ft5x_ts | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/modules"
+  if [ z${DISTRIBUTION} = "zjessie" ]; then
+    run "echo ft5x_ts | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/modules"
+  fi
 }
 
 install_mesa(){
@@ -205,7 +209,9 @@ install_wlan_firmware(){
 }
 setup_wlan(){
   debug "Configure wlan subsystem ..."
-  run "echo ap6210 | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/modules"
+  if [ z${DISTRIBUTION} = "zjessie" ]; then
+    run "echo ap6210 | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/modules"
+  fi
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/wpa_supplicant/wpa_supplicant.conf
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
@@ -262,13 +268,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3Igwfs5fS9EPXDyHohTW72z4WfCu44nGl40j9wxqs
 EOF"
 }
 
-disable_screen_blank() {
-  # http://unix.stackexchange.com/questions/8056/disable-screen-blanking-on-text-console#23636
-  debug "Disable screen blanking ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"echo -ne \"\\033[9;0]\" >> /etc/issue\""
-}
-
-
 # Main part of the script
 
 # include option parser
@@ -318,5 +317,4 @@ install_ssh_server
 
 setup_remote_access
 
-disable_screen_blank
 
