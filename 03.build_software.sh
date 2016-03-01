@@ -188,8 +188,6 @@ fi
 EOF"
   run "sudo chmod +x ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/weston.sh"
 }
-
-
 setup_hostname() {
   debug "Set hostname ..."
   run "echo xmz_mod_touch | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/hostname"
@@ -197,6 +195,13 @@ setup_hostname() {
 install_wlan(){
   debug "Install wlan subsystem ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y wpasupplicant net-tools wireless-tools isc-dhcp-client"
+}
+install_wlan_firmware(){
+  if [ z${DISTRIBUTION} = "zsid" ]; then
+    debug "Install Broadcom Firmware ..."
+    run "# wget -O /lib/firmware/brcm/brcmfmac43362-sdio.txt http://dl.cubieboard.org/public/Cubieboard/benn/firmware/ap6210/nvram_ap6210.txt"
+    run "sudo cp share/brcmfmac43362-sdio.txt ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/lib/firmware/brcm/brcmfmac43362-sdio.txt"
+  fi
 }
 setup_wlan(){
   debug "Configure wlan subsystem ..."
@@ -302,6 +307,8 @@ create_weston_sh
 setup_hostname
 
 install_wlan
+
+install_wlan_firmware
 
 setup_wlan
 
