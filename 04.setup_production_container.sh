@@ -27,6 +27,13 @@ setup_dotfiles(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/.dotfiles && ./install.sh\""
 }
 
+# run "sudo systemd-nspawn -D  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"\""
+
+install_oh_my_zsh(){
+   debug "Install oh-my-zsh ( https://github.com/robbyrussell/oh-my-zsh/ ) ..."
+   run "sudo systemd-nspawn -D  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"sh -c \"$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\"\""
+  run "sudo systemd-nspawn -D  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"echo DISABLE_AUTO_UPDATE=true>>~/.zshrc\""
+}
 
 
 
@@ -44,4 +51,4 @@ prepare_production_container
 
 setup_dotfiles
 
-
+install_oh_my_zsh
