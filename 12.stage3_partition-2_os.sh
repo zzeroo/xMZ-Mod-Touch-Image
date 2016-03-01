@@ -62,7 +62,12 @@ EOF"
   fi
 }
 
-
+disable_screenblank(){
+  if [ z${DISTRIBUTION} = "zsid" ]; then
+    debug "disable screen blanking ..."
+    run "echo -ne \"\033[9;0]\" | sudo tee ${mnt}/etc/issue"
+  fi
+}
 
 cleanup_mount(){
   debug "Umount ${mnt} ..."
@@ -100,6 +105,8 @@ copy_in_basic_filesystem
 copy_in_modules
 
 setup_fstab
+
+disable_screenblank
 
 cleanup_mount
 
