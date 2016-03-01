@@ -31,8 +31,9 @@ build_uboot(){
   if [ z${DISTRIBUTION} = "zsid" ]; then
     run "# git://git.denx.de/u-boot.git"
     run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"apt-get install -y device-tree-compiler\""
-    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d u-boot ]] && git clone git://git.denx.de/u-boot.git -b v2016.01\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d u-boot ]] && git clone git://git.denx.de/u-boot.git\""
     run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot && git pull\""
+    run "sudo cp share/Bananapro_defconfig ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/u-boot/configs/Bananapro_defconfig"
     run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot && make Bananapro_defconfig\""
     run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/u-boot && make -j$(nproc)\""
   else
@@ -45,15 +46,15 @@ build_uboot(){
 }
 
 build_sunxi_tools(){
-  debug "Build sunxi tools a.k.a. sun4i ..."
-  run "# https://github.com/LeMaker/sunxi-tools"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d sunxi-tools  ]] && git clone https://github.com/LeMaker/sunxi-tools.git || true\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/sunxi-tools && git pull\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/sunxi-tools && make -j$(nproc)\""
+  if [ z${DISTRIBUTION} = "zjessie" ]; then
+    debug "Build sunxi tools a.k.a. sun4i ..."
+    run "# https://github.com/LeMaker/sunxi-tools"
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d sunxi-tools  ]] && git clone https://github.com/LeMaker/sunxi-tools.git || true\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/sunxi-tools && git pull\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/sunxi-tools && make -j$(nproc)\""
+  fi
 }
 
-# TODO: Split in fetch_kernel(), config_kernel() and make_kernel()
-# TODO: Include custom .config (with btrfs enabled)
 # TODO: Include cutom logo:
 #   # copy in a logo (png, 80x80 px)
 #   cd share
@@ -75,13 +76,22 @@ fetch_kernel() {
 
 config_kernel(){
   debug "Configure linux kernel ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make sun7i_defconfig\""
+  if [ z${DISTRIBUTION} = "zsid" ]; then
+    run "sudo cp share/.config ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/.config"
+  else
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make sun7i_defconfig\""
+  fi
 }
 
 build_kernel(){
-  run "# FIXME: Include custom config"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make -j$(nproc) zImage dtbs\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make INSTALL_MOD_PATH=output modules modules_install\""
+  run "Build linux kernel ..."
+  if [ z${DISTRIBUTION} = "zsid" ]; then
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make -j$(nproc) zImage dtbs modules\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make INSTALL_MOD_PATH=output modules_install\""
+  else
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make -j$(nproc) uImage modules\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make INSTALL_MOD_PATH=output modules_install\""
+  fi
 }
 
 
