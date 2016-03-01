@@ -12,6 +12,10 @@ SCRIPTVERSION=0.1.9
 # include generic functions (echo_b(), and debug() and so on)
 source "$(dirname $0)/lib/generic_functions.sh"
 
+prepare_system() {
+	debug "Bereite system vor ..."
+	run "sudo apt-get install -y debootstrap"
+}
 
 add_qemu() {
   debug "Add qemu support ..."
@@ -105,6 +109,7 @@ EOF"
 # include option parser
 source "$(dirname $0)/lib/option_parser.sh"
 
+prepare_system
 
 add_qemu
 
