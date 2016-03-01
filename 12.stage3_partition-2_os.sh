@@ -30,24 +30,35 @@ create_loop_device_with_offset(){
 
 mount_image_partition_2(){
   debug "Mount image partition 2 ..."
-  mnt=/tmp/disk
-  run "export mnt=/tmp/disk"
+  mnt=/mnt/disk
+  run "export mnt=/mnt/disk"
   run "[[ ! -d ${mnt}  ]] && sudo mkdir ${mnt}"
   run "sudo mount /dev/loop12 ${mnt}"
 }
 
 copy_in_basic_filesystem(){
   debug "Copy in basic filesystem ..."
-  run "sudo rsync -a --delete --exclude={fex_configuration,libmodbus,linux,linux-sunxi,sunxi-boards,sunxi-tools,u-boot-sunxi,xMZ-Mod-Touch-GUI} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/* /tmp/disk"
+  run "sudo rsync -a --exclude '*root*' ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/* /mnt/disk"
+  run "[ -d /mnt/disk/root  ] || sudo mkdir /mnt/disk/root/"
+  run "sudo rsync -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/root/weston.sh /mnt/disk/root/weston.sh"
+  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/root/.[^.]* /mnt/disk/root\"/"
 }
 
 copy_in_modules(){
   debug "Copy in kernel modules (partition2) ..."
   if [ z${DISTRIBUTION} = "zsid" ]; then
-    run "# sudo cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux/output/lib ${mnt}/"
-    run "sudo cp -r ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/output/lib ${mnt}/"
+    run "sudo cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/output/lib ${mnt}/"
   else
     run "sudo cp -r ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/output/lib ${mnt}/"
+  fi
+}
+
+setup_fstab(){
+  if [ z${DISTRIBUTION} = "zsid" ]; then
+    debug "Install Broadcom Firmware ..."
+    run "cat <<-EOF |sudo tee ${mnt}/etc/fstab
+/dev/mmcblk0p2 / btrfs rw,relatime,ssd,noacl,space_cache,subvolid=5,subvol=/ 0 0
+EOF"
   fi
 }
 
@@ -87,6 +98,8 @@ mount_image_partition_2
 copy_in_basic_filesystem
 
 copy_in_modules
+
+setup_fstab
 
 cleanup_mount
 
