@@ -70,14 +70,14 @@ fetch_kernel() {
     run "# sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d linux-sunxi ]] && git clone https://github.com/LeMaker/linux-sunxi.git --depth=1 -b experimental/sunxi-3.10 || true\""
     run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d linux-sunxi ]] && git clone https://github.com/LeMaker/linux-sunxi.git --depth=1 || true\""
   fi
-  # Update the git repo if the dir was present, and the kernel was not fresh checked out.
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && git pull\""
+    # Update the git repo if the dir was present, and the kernel was not fresh checked out.
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && git pull\""
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && git checkout sunxi-next\""
 }
 
 config_kernel(){
   debug "Configure linux kernel ..."
   if [ z${DISTRIBUTION} = "zsid" ]; then
-    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && git checkout sunxi-next\""
     run "sudo cp share/.config ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/.config"
     run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make oldconfig\""
   else
@@ -88,6 +88,8 @@ config_kernel(){
 build_kernel(){
   run "Build linux kernel ..."
   if [ z${DISTRIBUTION} = "zsid" ]; then
+    run "#FIXME: looks like bc is need to build the kernel, let's solve it."
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"apt-get install -y bc\""
     run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make -j$(nproc) zImage dtbs modules\""
     run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make INSTALL_MOD_PATH=output modules_install\""
   else
