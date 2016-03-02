@@ -78,6 +78,7 @@ config_kernel(){
   debug "Configure linux kernel ..."
   if [ z${DISTRIBUTION} = "zsid" ]; then
     run "sudo cp share/.config ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/.config"
+    run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make oldconfig\""
   else
     run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/linux-sunxi && make sun7i_defconfig\""
   fi
