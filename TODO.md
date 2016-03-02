@@ -1,3 +1,10 @@
+# OhMyZsh Update deaktivieren
+
+Obwohl die entsprechenden Einträge in der .zshrc vorhanden sind wird beim erstem login nach dem autoupdate gefragt.
+Danach ist das Auto update deaktiviert.
+
+Ermittele die Zusammenhänge und finde eine Lösung.
+
 # Kernel
 
 # New flow
