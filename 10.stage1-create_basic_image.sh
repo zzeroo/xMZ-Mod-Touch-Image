@@ -79,7 +79,7 @@ source "$(dirname $0)/lib/option_parser.sh"
 
 # Name of the image, the file is located in script dir,
 # or can given with the "output_dir" parameter
-IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage-image.img
+IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage.img
 # Image size in mega byte
 IMAGE_SIZE_MB=4000
 
