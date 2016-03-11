@@ -192,6 +192,12 @@ fi
 EOF"
   run "sudo chmod +x ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/weston.sh"
 }
+disable_getty(){
+  if [ z${DISTRIBUTION} = "zsid" ]; then
+    debug "Disable getty's ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"systemctl disable getty@.service\""
+  fi
+}
 setup_hostname() {
   debug "Set hostname ..."
   run "echo xmz_mod_touch | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/hostname"
