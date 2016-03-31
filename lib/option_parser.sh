@@ -56,7 +56,7 @@ while true; do
 	esac
 done
 
-# Parameter setup, default values
+# DEFAULT VALUES
 # If output dir is not given as parameter, use the current dir.
 [ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="`pwd`"
 # TODO: replace hard coded CONTAINER_DIR paths in the scripts
@@ -66,8 +66,5 @@ done
 [ x"${ENVIRONMENT}" = x ] && ENVIRONMENT="development"
 # If distribution is not given as parameter we use debian sid.
 [ x"${DISTRIBUTION}" = x ] && DISTRIBUTION="sid"
-
-
-
-
-
+# Kernel Sources path
+[ x"${KERNELSOURCES}" = x] && KERNELSOURCES="/usr/src/linux-sunxi_Lenmaker"

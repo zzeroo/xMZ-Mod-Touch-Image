@@ -41,7 +41,8 @@ copy_in_basic_filesystem(){
   run "sudo rsync -a --exclude '*root*' ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/* /mnt/disk"
   run "[ -d /mnt/disk/root  ] || sudo mkdir /mnt/disk/root/"
   run "sudo rsync -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/root/weston.sh /mnt/disk/root/weston.sh"
-  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/root/.[^.]* /mnt/disk/root\"/"
+  run "# sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/root/.[^.]* /mnt/disk/root\"/"
+  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/root/{.bashrc,.inputrc,.ssh,.oh-my-zsh,.vim*,.zsh*} /mnt/disk/root\"/"
 }
 
 copy_in_modules(){
@@ -111,4 +112,3 @@ disable_screenblank
 cleanup_mount
 
 cleanup_loop_devices
-

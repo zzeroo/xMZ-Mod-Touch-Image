@@ -81,8 +81,8 @@ uboot_splash(){
 copy_in_kernel(){
   debug "Copy in kernel (partition1) ..."
   if [ z${DISTRIBUTION} = "zsid" ]; then
-    run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/arch/arm/boot/zImage ${mnt}/"
-    run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/arch/arm/boot/dts/sun7i-a20-bananapro.dtb ${mnt}/"
+    run "sudo cp ${KERNELSOURCES}/arch/arm/boot/zImage ${mnt}/"
+    run "sudo cp ${KERNELSOURCES}/arch/arm/boot/dts/sun7i-a20-bananapro.dtb ${mnt}/"
   else
     run "# sudo cp ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
   fi
@@ -138,4 +138,3 @@ copy_in_script_bin
 cleanup_mount
 
 cleanup_loop_devices
-

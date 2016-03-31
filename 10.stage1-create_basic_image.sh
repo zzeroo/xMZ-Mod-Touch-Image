@@ -94,4 +94,3 @@ create_loop_device_with_offset
 make_filesystems
 
 cleanup_loop_devices
-

@@ -22,17 +22,18 @@ example() {
 show_help(){
 	echo
   echo_b "Usage:"
-	echo -e "\t`basename $0`\t[-o|--output_dir] [-v|--verbose] [-s|--simulate] [-f|--force] [-h|--help]"
+	echo -e "\t`basename $0`\t[ARGUMENTS]"
 	echo
-	echo_b "Arguments:"
-  echo -e "\t-o, --output_dir\tWere should the output files created (default: current working dir)"
+	echo_b "ARGUMENTS:"
   echo -e "\t-c, --container_dir\tWhere is the container store path (default: /var/lib/container/)"
-  echo -e "\t-e, --environment\tEnvironment should be production or development, but can be all value, too (default: development)"
   echo -e "\t-d, --distribution\tDebian distribution used by debootstrap (default: sid)"
+  echo -e "\t-e, --environment\tEnvironment should be production or development, but can be all value, too (default: development)"
+  echo -e "\t-f, --force\t\tOverride existing files, DANGER!"
+  echo -e "\t-h, --help\t\tShow this output"
+  echo -e "\t-k, --kernelsources\tWere should the output files created (default: current working dir)"
+  echo -e "\t-o, --output_dir\tWere should the output files created (default: current working dir)"
+  echo -e "\t-s, --simulate\t\tPrint each command, but don't execute it"
 	echo -e "\t-v, --verbose\t\tShow which commands are called"
-	echo -e "\t-s, --simulate\t\tPrint each command, but don't execute it"
-	echo -e "\t-f, --force\t\tOverride existing files, DANGER!"
-	echo -e "\t-h, --help\t\tShow this output"
 	echo
   example "${EXAMPLE}"
 	echo "Script version: ${SCRIPTVERSION}"
@@ -43,7 +44,7 @@ show_help(){
 debug() {
   # Only print if we not in sumulate mode
   if [[ x"${SIMULATE}" == "xtrue" ]]; then
-    echo_b "# $1"
+    echo "# $1"
   else
     echo_b "$1"
   fi
@@ -70,4 +71,3 @@ run() {
 		eval "$1" &>/dev/null
 	fi
 }
-
