@@ -7,7 +7,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.1.9
+SCRIPTVERSION=0.2.0
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -98,6 +98,18 @@ build_kernel(){
   fi
 }
 
+build_sunxi_boards(){
+  debug "Fetch sunxi boards repo ..."
+  run "# https://github.com/LeMaker/sunxi-boards"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d sunxi-boards ]] && git clone https://github.com/LeMaker/sunxi-boards.git || true\""
+}
+
+get_fex_configuration(){
+  debug "Fetch fex_configuration files (fex and bin) ..."
+  run "# https://github.com/LeMaker/fex_configuration"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d fex_configuration ]] && git clone https://github.com/LeMaker/fex_configuration.git || true\""
+}
+
 
 
 # Main part of the script
@@ -109,13 +121,16 @@ source "$(dirname $0)/lib/option_parser.sh"
 
 install_dependencies
 
-build_uboot
+#build_uboot
 
 build_sunxi_tools
 
-fetch_kernel
+#fetch_kernel
 
-config_kernel
+#config_kernel
 
-build_kernel
+#build_kernel
 
+#build_sunxi_boards
+
+#get_fex_configuration
