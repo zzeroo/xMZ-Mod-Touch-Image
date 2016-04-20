@@ -6,7 +6,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.1.9
+SCRIPTVERSION=0.2.0
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -38,25 +38,25 @@ mount_image_partition_2(){
 
 copy_in_basic_filesystem(){
   debug "Copy in basic filesystem ..."
-  run "sudo rsync -a --exclude '*root*' ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/* /mnt/disk"
+  run "sudo rsync -a --exclude '*root*' ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/* /mnt/disk"
   run "[ -d /mnt/disk/root  ] || sudo mkdir /mnt/disk/root/"
-  run "sudo rsync -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/root/weston.sh /mnt/disk/root/weston.sh"
-  run "# sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/root/.[^.]* /mnt/disk/root\"/"
-  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-${ENVIRONMENT}/root/{.bashrc,.inputrc,.ssh,.oh-my-zsh,.vim*,.zsh*} /mnt/disk/root\"/"
+  run "sudo rsync -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/weston.sh /mnt/disk/root/weston.sh"
+  run "# sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.[^.]* /mnt/disk/root\"/"
+  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/{.bashrc,.config,.inputrc,.ssh,.oh-my-zsh,.vim*,.zsh*} /mnt/disk/root\"/"
 }
 
 copy_in_modules(){
   debug "Copy in kernel modules (partition2) ..."
   if [ z${DISTRIBUTION} = "zsid" ]; then
-    run "sudo cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/linux-sunxi/output/lib ${mnt}/"
+    run "sudo cp -r ${KERNELSOURCES}/output/lib ${mnt}/"
   else
-    run "sudo cp -r ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/output/lib ${mnt}/"
+    run "sudo cp -r ${CONTAINER_DIR}/jessie_armhf/root/linux-sunxi/output/lib ${mnt}/"
   fi
 }
 
 setup_fstab(){
   if [ z${DISTRIBUTION} = "zsid" ]; then
-    debug "Install Broadcom Firmware ..."
+    debug "Setup fstab ..."
     run "cat <<-EOF |sudo tee ${mnt}/etc/fstab
 /dev/mmcblk0p2 / btrfs rw,relatime,ssd,noacl,space_cache,subvolid=5,subvol=/ 0 0
 EOF"
