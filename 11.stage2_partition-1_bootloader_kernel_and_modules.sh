@@ -6,7 +6,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.1.9
+SCRIPTVERSION=0.2.0
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -32,9 +32,9 @@ write_bootloader(){
   debug "Write bootloader ..."
 	run "sudo dd if=/dev/zero of=/dev/loop10 bs=1k count=1023 seek=1"
   if [ z${DISTRIBUTION} = "zsid" ]; then
-    run "sudo dd if=${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/u-boot/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
+    run "sudo dd if=${KERNELSOURCES}/../u-boot/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
   else
-    run "sudo dd if=${CONTAINER_DIR}/jessie_armhf-development/root/u-boot-sunxi/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
+    run "sudo dd if=${CONTAINER_DIR}/jessie_armhf/root/u-boot-sunxi/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
   fi
 }
 
@@ -84,7 +84,7 @@ copy_in_kernel(){
     run "sudo cp ${KERNELSOURCES}/arch/arm/boot/zImage ${mnt}/"
     run "sudo cp ${KERNELSOURCES}/arch/arm/boot/dts/sun7i-a20-bananapro.dtb ${mnt}/"
   else
-    run "# sudo cp ${CONTAINER_DIR}/jessie_armhf-development/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
+    run "# sudo cp ${CONTAINER_DIR}/jessie_armhf/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
   fi
 }
 
@@ -92,7 +92,7 @@ copy_in_script_bin(){
   # Only need on jessie.
   if [ z${DISTRIBUTION} = "zjessie" ]; then
     debug "Copy in script.bin ..."
-    run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/fex_configuration/bin/banana_pro_7lcd.bin ${mnt}/script.bin"
+    run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/fex_configuration/bin/banana_pro_7lcd.bin ${mnt}/script.bin"
   fi
 }
 
