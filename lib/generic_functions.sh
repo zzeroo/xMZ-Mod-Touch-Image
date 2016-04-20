@@ -30,7 +30,7 @@ show_help(){
   echo -e "\t-e, --environment\tEnvironment should be production or development, but can be all value, too (default: development)"
   echo -e "\t-f, --force\t\tOverride existing files, DANGER!"
   echo -e "\t-h, --help\t\tShow this output"
-  echo -e "\t-k, --kernelsources\tWere should the output files created (default: current working dir)"
+  echo -e "\t-k, --kernelsources\tWere should the output files created (default: /usr/src)"
   echo -e "\t-o, --output_dir\tWere should the output files created (default: current working dir)"
   echo -e "\t-s, --simulate\t\tPrint each command, but don't execute it"
 	echo -e "\t-v, --verbose\t\tShow which commands are called"

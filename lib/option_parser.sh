@@ -25,12 +25,24 @@ while true; do
 			CONTAINER_DIR="$2"
 			shift 2 # past argument
 			;;
+		-d|--distribution)
+			DISTRIBUTION="$2"
+			shift 2 # past argument
+			;;
 		-e|--environment)
 			ENVIRONMENT="$2"
 			shift 2 # past argument
 			;;
-		-d|--distribution)
-			DISTRIBUTION="$2"
+		-f|--force)
+			FORCE=true
+			shift # past argument
+			;;
+		-h|--help)
+			show_help
+			shift # past argument
+			;;
+		-k|--kernelsources)
+			KERNELSOURCES="$2"
 			shift 2 # past argument
 			;;
 		-s|--simulate)
@@ -39,14 +51,6 @@ while true; do
 			;;
 		-v|--verbose)
 			VERBOSE=true
-			shift # past argument
-			;;
-		-f|--force)
-			FORCE=true
-			shift # past argument
-			;;
-		-h|--help)
-			show_help
 			shift # past argument
 			;;
 		--)
@@ -67,4 +71,4 @@ done
 # If distribution is not given as parameter we use debian sid.
 [ x"${DISTRIBUTION}" = x ] && DISTRIBUTION="sid"
 # Kernel Sources path
-[ x"${KERNELSOURCES}" = x] && KERNELSOURCES="/usr/src/linux-sunxi_Lenmaker"
+[ x"${KERNELSOURCES}" = x ] && KERNELSOURCES="/usr/src/linux"
