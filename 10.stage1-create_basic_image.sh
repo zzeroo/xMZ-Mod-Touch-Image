@@ -28,11 +28,11 @@ create_image(){
 # Create a loop device
 create_loop_device(){
 	debug "Create loop device ..."
-	run "sudo losetup /dev/loop10 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || exit 1"
+	run "sudo losetup /dev/loop10 \"${OUTPUT_DIR}/${IMAGE_NAME}\""
 }
 
-# Create the partition layout
-create_partitions(){
+# Create the partition layout with fdisk
+create_partitions_fdisk(){
 	debug "Create partitions on /dev/loop10 ..."
 	run "sudo fdisk /dev/loop10 <<-'EOF'
 	o
@@ -52,6 +52,42 @@ create_partitions(){
 	w
 EOF"
 }
+# Create the partition layout with gdisk
+# FIXME: Not working, partitions are corrupt on filesystem creation
+create_partitions_gdisk(){
+	debug "Create partitions on /dev/loop10 ..."
+	run "sudo gdisk /dev/loop10 <<-'EOF'
+	n
+	1
+
+	+20M
+	0700
+	n
+	2
+
+
+
+
+	w
+	y
+EOF"
+}
+# Create the partition layout with parted
+create_partitions_parted(){
+	debug "Create partitions on /dev/loop10 ..."
+	run "sudo parted --script -a optimal /dev/loop10 \
+	mklabel msdos \
+	mkpart primary fat32 2048s 43007s \
+	mkpart primary btrfs 43008s 100%"
+}
+
+# Create the partition
+# This is a helper function. It checks for the presens of gdisk, if gdisk is not
+# found on the system, a fallback to fdisk is used.
+create_partitions(){
+	[ -f "/sbin/gdisk" ] && create_partitions_parted || create_partitions_fdisk
+}
+
 # Create loop devices with offset
 create_loop_device_with_offset(){
 	debug "Create loop devices with offset ..."
