@@ -1,12 +1,11 @@
 #!/bin/bash
 #
-# This script creates a systemd-nspawn template and derive 2 containers from
-# it. One "development"-container and one "production"-container.
+# This script creates a systemd-nspawn container.
 EXAMPLE="./`basename $0` -s"
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.1.9
+SCRIPTVERSION=0.2.0
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -19,9 +18,9 @@ prepare_system() {
 
 add_qemu() {
   debug "Add qemu support ..."
-  run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/usr/bin"
+  run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/bin"
   if [[ -f /usr/bin/qemu-arm-static ]] || [[ -f /usr/bin/qemu-arm ]]; then
-    run "sudo bash -c \"cp /usr/bin/qemu-arm* ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/usr/bin/\""
+    run "sudo bash -c \"cp /usr/bin/qemu-arm* ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/bin/\""
   else
     print_quemu_setup
     # If we're not on simulate mode exit here.
@@ -37,9 +36,9 @@ print_quemu_setup() {
   run "#"
 	run "# Or build from source (PREFERED):"
   run "# apt-get install build-essential pkg-config zlib1g-dev libglib2.0-dev autoconf libtool binfmt-support"
-  run "# git submodule update --init pixman"
   run "# git clone git://git.qemu-project.org/qemu.git"
   run "# cd qemu"
+	run "# git submodule update --init pixman"
   run "# mkdir build"
   run "# cd build"
   run "# ../configure --static --target-list=\"x86_64-linux-user arm-linux-user armeb-linux-user\"  --prefix=/usr"
@@ -47,39 +46,18 @@ print_quemu_setup() {
   run "# sudo make install"
 }
 
-debootstrap_template_container(){
+debootstrap_container(){
   debug "Bootstrapping ${DISTRIBUTION} to ${CONTAINER_DIR} ..."
-  run "# sudo debootstrap --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/"
-  run "sudo debootstrap --variant=minbase --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/"
+	run "# sudo debootstrap --variant=minbase --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/"
+	run "sudo debootstrap --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/"
 }
 
-# This function prepares the
-prepare_template_container(){
-  debug "Prepare template container ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template /bin/bash -c \"apt-get install -y sudo vim git\""
+set_passwd_in_container(){
+  debug "Set root password in container ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo -e \\\"930440Hk\n930440Hk\\\" | passwd\""
 }
 
-derive_development_container(){
-  debug "Create development container ..."
-  run "sudo systemd-nspawn --template ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development true"
-}
 
-derive_production_container(){
-  debug "Create production container ..."
-  run "sudo systemd-nspawn --template ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production true"
-}
-
-set_passwd_in_development_container(){
-  debug "Set root password in development container ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"echo -e \\\"930440Hk\n930440Hk\\\" | passwd\""
-}
-
-set_passwd_in_production_container(){
-  debug "Set root password in production container ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production /bin/bash -c \"echo -e \\\"930440Hk\n930440Hk\\\" | passwd\""
-}
-
-# TODO: Only in development container, should we use it in template or not?
 enable_search_history() {
   debug "Enable search history with 'page up' and 'page down' ..."
   #run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production /bin/bash -c \"\""
@@ -90,7 +68,7 @@ enable_search_history() {
 EOF"
 }
 
-# TODO: Only in development container, should we use it in template or not?
+# TODO: Needed?
 configure_bashrc() {
   debug "configure bashrc (some alias and color) ..."
   #run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production /bin/bash -c \"\""
@@ -113,13 +91,10 @@ prepare_system
 
 add_qemu
 
-debootstrap_template_container
+debootstrap_container
 
-prepare_template_container
+set_passwd_in_container
 
-derive_development_container
-derive_production_container
+enable_search_history
 
-set_passwd_in_development_container
-set_passwd_in_production_container
-
+# configure_bashrc
