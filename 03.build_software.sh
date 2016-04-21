@@ -7,7 +7,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.1.9
+SCRIPTVERSION=0.2.1
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -17,79 +17,16 @@ source "$(dirname $0)/lib/generic_functions.sh"
 
 install_dependencies(){
   debug "Install dependencies ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"apt-get update && apt-get upgrade -y\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y build-essential pkg-config libusb-1.0-0-dev zlib1g-dev"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get update && apt-get upgrade -y\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y zsh tmux git curl"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y aptitude build-essential pkg-config libusb-1.0-0-dev zlib1g-dev"
 }
 
-
-build_sunxi_boards(){
-  debug "Fetch sunxi boards repo ..."
-  run "# https://github.com/LeMaker/sunxi-boards"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d sunxi-boards ]] && git clone https://github.com/LeMaker/sunxi-boards.git || true\""
-}
-
-get_fex_configuration(){
-  debug "Fetch fex_configuration files (fex and bin) ..."
-  run "# https://github.com/LeMaker/fex_configuration"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d fex_configuration ]] && git clone https://github.com/LeMaker/fex_configuration.git || true\""
-}
-
-build_libmodbus(){
-  debug "Fetch and build libmodbus ..."
-  run "# https://github.com/stephane/libmodbus.git"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y autoconf git-core build-essential libtool"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d libmodbus ]] && git clone https://github.com/stephane/libmodbus.git --depth=1 || true\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/libmodbus && git pull\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/libmodbus && ./autogen.sh\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/libmodbus && ./configure --prefix=/usr\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/libmodbus && make -j$(nproc)\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/libmodbus && make install\""
-}
-
-build_xmz(){
-  debug "Fetch and build the xMZ-Mod-Touch GUI ..."
-  run "# https://github.com/zzeroo/xMZ-Mod-Touch-GUI.git"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y intltool libgtk-3-dev gsettings-desktop-schemas-dev libgee-dev libsqlite3-dev libgirepository1.0-dev gnome-common valac"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root && [[ ! -d xMZ-Mod-Touch-GUI ]] && git clone https://github.com/zzeroo/xMZ-Mod-Touch-GUI.git --depth=1 || true\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && git pull\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && ./autogen.sh --prefix=/usr\""
-  run "# -j$(nproc) dosn't work!\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && make\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && make dist\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"cd /root/xMZ-Mod-Touch-GUI && make install\""
-}
-
-setup_systemd_xmz_unit(){
-  debug "Configure systemd to autostart xMZ-Mod-Touch-GUI ..."
-  run "cat <<-'EOF | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/systemd/system/xmz-mod-touch-gui.service
-#
-# xmz-mod-touch-gui systemd service unit file
-#
-
-[Unit]
-Description=xMZ-Mod_Touch launcher
-# Wants=syslog.target dbus.service
-After=weston.service
-
-[Service]
-Environment=\"XDG_RUNTIME_DIR=/run/shm/wayland\"
-Environment=\"GDK_BACKEND=wayland\"
-Environment=\"XMZ_HARDWARE=0.1.0\"
-ExecStart=/usr/bin/xmz
-Restart=always
-RestartSec=10
-
-[Install]
-Alias=xmz.service
-WantedBy=graphical.target
-EOF"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development systemctl enable xmz-mod-touch-gui.service"
-}
 
 enable_mali_drivers(){
   debug "Enable mali drivers ..."
   if [ z${DISTRIBUTION} = "zjessie" ]; then
-  run "cat <<-'EOF' | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/modules
+  run "cat <<-'EOF' | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/modules
 mali
 ump
 mali_drm
@@ -97,34 +34,27 @@ EOF"
   fi
 }
 
-enable_touchscreen_driver(){
-  debug "Enable touchscreen drivers ..."
-  if [ z${DISTRIBUTION} = "zjessie" ]; then
-    run "echo ft5x_ts | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/modules"
-  fi
-}
-
 install_mesa(){
   debug "Install mesa ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y libglapi-mesa libgles1-mesa libgles1-mesa-dev libgles2-mesa libgles2-mesa-dev libwayland-egl1-mesa libgles2-mesa"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y libglapi-mesa libgles1-mesa libgles1-mesa-dev libgles2-mesa libgles2-mesa-dev libwayland-egl1-mesa libgles2-mesa"
 }
 
 install_weston(){
   debug "Install weston ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y weston "
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y weston "
 }
 
 install_weston_wallpaper(){
   debug "Install weston wallpaper ..."
-  run "sudo mkdir -p  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/usr/share/backgrounds/ra-gas/"
-  run "sudo cp $(dirname $0)/share/Wallpaper-Desktop.png ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/usr/share/backgrounds/ra-gas/Wallpaper-Desktop.png"
-  run "sudo chmod 644 ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/usr/share/backgrounds/ra-gas/Wallpaper-Desktop.png"
+  run "sudo mkdir -p  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/share/backgrounds/ra-gas/"
+  run "sudo cp $(dirname $0)/share/Wallpaper-Desktop.png ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/share/backgrounds/ra-gas/Wallpaper-Desktop.png"
+  run "sudo chmod 644 ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/share/backgrounds/ra-gas/Wallpaper-Desktop.png"
 }
 
 setup_weston(){
   debug "Setup weston ..."
-  run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.config"
-  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.config/weston.ini
+  run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.config"
+  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.config/weston.ini
 [core]
 backend=fbdev-backend.so
 idle-time=0
@@ -150,11 +80,10 @@ EOF"
 
 setup_systemd_weston_unit(){
   debug "Configure systemd to autostart weston ..."
-  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/systemd/system/weston.service
+  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/systemd/system/weston.service
 [Unit]
 Description=Weston launcher
-# Wants=syslog.target dbus.service
-After=systemd-user-sessions.service
+After=getty@tty1.service
 
 [Service]
 Environment=PATH=/usr/bin:/bin:/usr/sbin:/sbin
@@ -167,12 +96,12 @@ RestartSec=10
 Alias=display-manager.service
 WantedBy=graphical.target
 EOF"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development systemctl enable weston.service"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf systemctl enable weston.service"
 }
 
 create_weston_sh(){
   debug "Create weston.sh (weston start script) ..."
-  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/weston.sh
+  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/weston.sh
 #!/bin/bash
 #
 # Weston startup file.
@@ -190,35 +119,35 @@ fi
 
 /usr/bin/weston --tty=1 --log=/var/log/weston.log
 EOF"
-  run "sudo chmod +x ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/weston.sh"
+  run "sudo chmod +x ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/weston.sh"
 }
 disable_getty(){
   if [ z${DISTRIBUTION} = "zsid" ]; then
     debug "Disable getty's ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development /bin/bash -c \"systemctl disable getty@.service\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"systemctl disable getty@.service\""
   fi
 }
 setup_hostname() {
   debug "Set hostname ..."
-  run "echo xmz_mod_touch | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/hostname"
+  run "echo xmz-mod-touch | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/hostname"
 }
 install_wlan(){
   debug "Install wlan subsystem ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y wpasupplicant net-tools wireless-tools isc-dhcp-client"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y wpasupplicant net-tools wireless-tools isc-dhcp-client"
 }
 install_wlan_firmware(){
   if [ z${DISTRIBUTION} = "zsid" ]; then
     debug "Install Broadcom Firmware ..."
-    run "# wget -O /lib/firmware/brcm/brcmfmac43362-sdio.txt http://dl.cubieboard.org/public/Cubieboard/benn/firmware/ap6210/nvram_ap6210.txt"
-    run "sudo cp share/brcmfmac43362-sdio.txt ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/lib/firmware/brcm/brcmfmac43362-sdio.txt"
+    run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/lib/firmware/brcm"
+    run "sudo wget -O ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/lib/firmware/brcm/brcmfmac43362-sdio.txt http://dl.cubieboard.org/public/Cubieboard/benn/firmware/ap6210/nvram_ap6210.txt"
   fi
 }
 setup_wlan(){
   debug "Configure wlan subsystem ..."
   if [ z${DISTRIBUTION} = "zjessie" ]; then
-    run "echo ap6210 | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/modules"
+    run "echo ap6210 | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/modules"
   fi
-  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/wpa_supplicant/wpa_supplicant.conf
+  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/wpa_supplicant/wpa_supplicant.conf
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 
@@ -239,7 +168,7 @@ EOF"
 }
 setup_network_interfaces(){
   debug "Seting up network interfaces ..."
-  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/etc/network/interfaces
+  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/network/interfaces
 # /etc/network/interfaces
 auto lo
 iface lo inet loopback
@@ -263,13 +192,13 @@ EOF"
 
 install_ssh_server(){
    debug "Install OpenSSH Server ..."
-   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development apt-get install -y openssh-server"
+   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y openssh-server"
 }
 
 setup_remote_access(){
   debug "Confiure remote access via ssh ..."
-  run "sudo mkdir ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.ssh"
-  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.ssh/authorized_keys
+  run "sudo mkdir ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.ssh"
+  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.ssh/authorized_keys
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3Igwfs5fS9EPXDyHohTW72z4WfCu44nGl40j9wxqs/yn5Nc2csTILYJCRcZPB+I0qly+YlohCnQvd1/It2JWp8n2kGK1TS6Vy3C0IEWXSsvb4ZX5xFX699r9rlELOWOZyxHMeRByQ4pk2C+O0QiiUlJhYxdVA+IuoR0C+cfH+wGWW/MnSwni57znvrn5rZwrfgM4YWhMq+YUlHG+BgUb7MJ2wNSWfeuxUUItAu191WLSVFcyIox1ECQh2q8NrBPddufyfn9lRZK12TJu5JsCguDgMKGQeu3Y1m/BFbiBBy6vAh1ucgZto8zBR9b0HaNxwScsyxkNSxKtRYjUV2rIb smueller@nb-smueller
 EOF"
 }
@@ -283,21 +212,9 @@ source "$(dirname $0)/lib/option_parser.sh"
 
 install_dependencies
 
-build_sunxi_boards
+#enable_mali_drivers
 
-get_fex_configuration
-
-# build_libmodbus
-
-# build_xmz
-#
-# setup_systemd_xmz_unit
-
-enable_mali_drivers
-
-enable_touchscreen_driver
-
-install_mesa
+#install_mesa
 
 install_weston
 
@@ -322,5 +239,3 @@ setup_network_interfaces
 install_ssh_server
 
 setup_remote_access
-
-
