@@ -20,7 +20,7 @@ add_qemu() {
   debug "Add qemu support ..."
   run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/bin"
   if [[ -f /usr/bin/qemu-arm-static ]] || [[ -f /usr/bin/qemu-arm ]]; then
-    run "sudo bash -c \"cp /usr/bin/qemu-arm* ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/bin/\""
+    run "sudo bash -c \"cp /usr/bin/qemu-arm* ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/bin/qemu-arm-static\""
   else
     print_quemu_setup
     # If we're not on simulate mode exit here.
