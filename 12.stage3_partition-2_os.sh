@@ -42,7 +42,7 @@ copy_in_basic_filesystem(){
   run "[ -d /mnt/disk/root  ] || sudo mkdir /mnt/disk/root/"
   run "sudo rsync -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/weston.sh /mnt/disk/root/weston.sh"
   run "# sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.[^.]* /mnt/disk/root\"/"
-  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/{.bashrc,.multirust*,.inputrc,.ssh,.oh-my-zsh,.vim*,.zsh*,.zprofile} /mnt/disk/root\"/"
+  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/{.bashrc,.config,.cargo*,.multirust*,.inputrc,.ssh,.oh-my-zsh,.vim*,.zsh*,.zprofile} /mnt/disk/root\"/"
 }
 
 copy_in_modules(){
