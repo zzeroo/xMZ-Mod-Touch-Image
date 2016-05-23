@@ -22,6 +22,13 @@ install_dependencies(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y aptitude build-essential pkg-config libusb-1.0-0-dev zlib1g-dev"
 }
 
+setup_locales() {
+	debug "Setup german locales ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y locales\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"locale-gen --purge de_DE.UTF-8\""
+	run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo -e 'LANG=\"de_DE.UTF-8\"\nLANGUAGE=\"de_DE:en\"\n' > /etc/default/locale\""
+}
+
 
 enable_mali_drivers(){
   debug "Enable mali drivers ..."
@@ -211,6 +218,8 @@ source "$(dirname $0)/lib/option_parser.sh"
 
 
 install_dependencies
+
+setup_locales
 
 #enable_mali_drivers
 
