@@ -6,7 +6,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.2.0
+SCRIPTVERSION=0.3.0
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -27,19 +27,14 @@ create_loop_device_with_offset(){
 }
 
 # Write bootloader
-# TODO: jessie distribution hard coded
 write_bootloader(){
   debug "Write bootloader ..."
 	run "sudo dd if=/dev/zero of=/dev/loop10 bs=1k count=1023 seek=1"
-  if [ z${DISTRIBUTION} = "zsid" ]; then
-    run "sudo dd if=${KERNELSOURCES}/../u-boot/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
-  else
-    run "sudo dd if=${CONTAINER_DIR}/jessie_armhf/root/u-boot-sunxi/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
-  fi
+  run "sudo dd if=${KERNELSOURCES}/../u-boot/u-boot-sunxi-with-spl.bin of=/dev/loop10 bs=1024 seek=8"
 }
 
 create_boot_script(){
-  debug "Create boot script boot.cmd or uEnv.txt ..."
+  debug "Create u-boot boot script boot.cmd ..."
 
   export mnt=/mnt/disk
   run "export mnt=/mnt/disk"
@@ -49,8 +44,7 @@ create_boot_script(){
   run "mountpoint ${mnt} >/dev/null && error \"${mnt} ist schon gemounted\""
   run "sudo mount /dev/loop11 ${mnt}"
 
-  if [ z${DISTRIBUTION} = "zsid" ]; then
-    run "cat <<-'EOF' |sudo tee ${mnt}/boot.cmd
+  run "cat <<-'EOF' |sudo tee ${mnt}/boot.cmd
     # mkimage -C none -A arm -T script -d boot.cmd boot.scr
     bootdelay=-2
     setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait panic=10 vt.global_cursor_default=0 quiet splash
@@ -60,47 +54,23 @@ create_boot_script(){
     load mmc 0:1 0x42000000 zImage || load mmc 0:1 0x42000000 boot/zImage
     bootz 0x42000000 - 0x43000000
 EOF"
-    run "sudo mkimage -C none -A arm -T script -d ${mnt}/boot.cmd ${mnt}/boot.scr"
-  else
-    run "cat <<-'EOF' |sudo tee ${mnt}/uEnv.txt
-bootargs=console=ttyS0,115200 disp.screen0_output_mode=EDID:1024x768p50 hdmi.audio=EDID:0 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait consoleblank=0
-aload_script=fatload mmc 0 0x43000000 script.bin;
-aload_kernel=fatload mmc 0 0x48000000 uImage;bootm 0x48000000;
-uenvcmd=run aload_script aload_kernel
-EOF"
-  fi
 }
 
 uboot_splash(){
-  if [ z${DISTRIBUTION} = "zsid" ]; then
-    debug "Copy in the splash image ..."
-    run "sudo cp share/u-boot-splashscreen.bmp ${mnt}"
-  fi
+  debug "Copy in the splash image ..."
+  run "sudo cp share/u-boot-splashscreen.bmp ${mnt}"
 }
 
 copy_in_kernel(){
   debug "Copy in kernel (partition1) ..."
-  if [ z${DISTRIBUTION} = "zsid" ]; then
-    run "sudo cp ${KERNELSOURCES}/arch/arm/boot/zImage ${mnt}/"
-    run "sudo cp ${KERNELSOURCES}/arch/arm/boot/dts/sun7i-a20-bananapro.dtb ${mnt}/"
-  else
-    run "# sudo cp ${CONTAINER_DIR}/jessie_armhf/root/linux-sunxi/arch/arm/boot/uImage ${mnt}/"
-  fi
-}
-
-copy_in_script_bin(){
-  # Only need on jessie.
-  if [ z${DISTRIBUTION} = "zjessie" ]; then
-    debug "Copy in script.bin ..."
-    run "sudo cp ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/fex_configuration/bin/banana_pro_7lcd.bin ${mnt}/script.bin"
-  fi
+  run "sudo cp ${KERNELSOURCES}/arch/arm/boot/zImage ${mnt}/"
+  run "sudo cp ${KERNELSOURCES}/arch/arm/boot/dts/sun7i-a20-bananapro.dtb ${mnt}/"
 }
 
 cleanup_mount(){
   debug "Umount ${mnt} ..."
   run "sudo umount ${mnt}"
 }
-
 
 cleanup_loop_devices(){
 	debug "Destroy loop devices ..."
@@ -112,12 +82,6 @@ cleanup_loop_devices(){
 
 # include option parser
 source "$(dirname $0)/lib/option_parser.sh"
-
-# Name of the image, the file is located in script dir,
-# or can given with the "output_dir" parameter
-IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage.img
-# Image size in mega byte
-IMAGE_SIZE_MB=3000
 
 
 
@@ -133,8 +97,9 @@ uboot_splash
 
 copy_in_kernel
 
-copy_in_script_bin
-
 cleanup_mount
 
 cleanup_loop_devices
+
+
+

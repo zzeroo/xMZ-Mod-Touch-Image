@@ -6,7 +6,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.2.0
+SCRIPTVERSION=0.3.0
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -40,34 +40,25 @@ copy_in_basic_filesystem(){
   debug "Copy in basic filesystem ..."
   run "sudo rsync -a --exclude '*root*' ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/* /mnt/disk"
   run "[ -d /mnt/disk/root  ] || sudo mkdir /mnt/disk/root/"
-  run "sudo rsync -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/weston.sh /mnt/disk/root/weston.sh"
   run "# sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.[^.]* /mnt/disk/root\"/"
-  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/{.bashrc,.config,.cargo*,.multirust*,.inputrc,.ssh,.oh-my-zsh,.vim*,.zsh*,.zprofile} /mnt/disk/root\"/"
+  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/{weston.sh,.bashrc,.config,.cargo*,.multirust*,.inputrc,.ssh,.oh-my-zsh,.vim*,.zsh*,.zprofile} /mnt/disk/root\"/"
 }
 
 copy_in_modules(){
   debug "Copy in kernel modules (partition2) ..."
-  if [ z${DISTRIBUTION} = "zsid" ]; then
-    run "sudo cp -r ${KERNELSOURCES}/output/lib ${mnt}/"
-  else
-    run "sudo cp -r ${CONTAINER_DIR}/jessie_armhf/root/linux-sunxi/output/lib ${mnt}/"
-  fi
+  run "sudo cp -r ${KERNELSOURCES}/output/lib ${mnt}/"
 }
 
 setup_fstab(){
-  if [ z${DISTRIBUTION} = "zsid" ]; then
-    debug "Setup fstab ..."
-    run "cat <<-EOF |sudo tee ${mnt}/etc/fstab
+  debug "Setup fstab ..."
+  run "cat <<-EOF |sudo tee ${mnt}/etc/fstab
 /dev/mmcblk0p2 / btrfs rw,relatime,ssd,noacl,space_cache,subvolid=5,subvol=/ 0 0
 EOF"
-  fi
 }
 
 disable_screenblank(){
-  if [ z${DISTRIBUTION} = "zsid" ]; then
-    debug "disable screen blanking ..."
-    run "echo -ne \"\033[9;0]\" | sudo tee ${mnt}/etc/issue"
-  fi
+  debug "disable screen blanking ..."
+  run "echo -ne \"\033[9;0]\" | sudo tee ${mnt}/etc/issue"
 }
 
 cleanup_mount(){
@@ -87,11 +78,6 @@ cleanup_loop_devices(){
 # include option parser
 source "$(dirname $0)/lib/option_parser.sh"
 
-# Name of the image, the file is located in script dir,
-# or can given with the "output_dir" parameter
-IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage.img
-# Image size in mega byte
-IMAGE_SIZE_MB=3000
 
 
 

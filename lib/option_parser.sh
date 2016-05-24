@@ -60,6 +60,7 @@ while true; do
 	esac
 done
 
+# VARIABLES
 # DEFAULT VALUES
 # If output dir is not given as parameter, use the current dir.
 [ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="`pwd`"
@@ -74,3 +75,11 @@ done
 [ x"${KERNELSOURCES}" = x ] && KERNELSOURCES="/usr/src/linux"
 # Root Password
 [ x"${ROOT_PASSWORD}" = x ] && ROOT_PASSWORD="asrael"
+
+# CONSTANTES
+# Name of the image, the file is located in script dir,
+# or can given with the "output_dir" parameter
+IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage.img
+# Image size in mega byte
+IMAGE_SIZE_MB=4000
+
