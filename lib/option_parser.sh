@@ -72,3 +72,5 @@ done
 [ x"${DISTRIBUTION}" = x ] && DISTRIBUTION="sid"
 # Kernel Sources path
 [ x"${KERNELSOURCES}" = x ] && KERNELSOURCES="/usr/src/linux"
+# Root Password
+[ x"${ROOT_PASSWORD}" = x ] && ROOT_PASSWORD="asrael"

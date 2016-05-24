@@ -20,7 +20,7 @@ add_qemu() {
   debug "Add qemu support ..."
   run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/bin"
   if [[ -f /usr/bin/qemu-arm-static ]] || [[ -f /usr/bin/qemu-arm ]]; then
-    run "sudo bash -c \"cp /usr/bin/qemu-arm* ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/bin/qemu-arm-static\""
+    run "sudo bash -c \"cp /usr/bin/qemu-arm-static ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/bin/qemu-arm-static\""
   else
     print_quemu_setup
     # If we're not on simulate mode exit here.
@@ -44,6 +44,7 @@ print_quemu_setup() {
   run "# ../configure --static --target-list=\"x86_64-linux-user arm-linux-user armeb-linux-user\"  --prefix=/usr"
   run "# make -j$(nproc)"
   run "# sudo make install"
+  run "# sudo cp /usr/bin/qemu-arm /usr/bin/qemu-arm-static"
 }
 
 debootstrap_container(){
@@ -54,31 +55,7 @@ debootstrap_container(){
 
 set_passwd_in_container(){
   debug "Set root password in container ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo -e \\\"930440Hk\n930440Hk\\\" | passwd\""
-}
-
-
-enable_search_history() {
-  debug "Enable search history with 'page up' and 'page down' ..."
-  #run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production /bin/bash -c \"\""
-  run "cat <<-EOF | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.inputrc
-# alternate mappings for \"page up\" and \"page down\" to search the history
-\"\e[5~\": history-search-backward
-\"\e[6~\": history-search-forward
-EOF"
-}
-
-# TODO: Needed?
-configure_bashrc() {
-  debug "configure bashrc (some alias and color) ..."
-  #run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-production /bin/bash -c \"\""
-  run "cat <<-EOF | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-development/root/.bashrc
-export LS_OPTIONS='--color=auto'
-eval \"`dircolors`\"
-alias ls='ls $LS_OPTIONS'
-alias ll='ls $LS_OPTIONS -l'
-alias l='ls $LS_OPTIONS -lA'
-EOF"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo -e \\\"${ROOT_PASSWORD}\n${ROOT_PASSWORD}\\\" | passwd\""
 }
 
 
@@ -95,6 +72,3 @@ debootstrap_container
 
 set_passwd_in_container
 
-enable_search_history
-
-# configure_bashrc
