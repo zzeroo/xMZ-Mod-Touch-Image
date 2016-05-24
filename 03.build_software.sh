@@ -26,10 +26,19 @@ setup_locales() {
 	debug "Setup german locales ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y locales\""
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"locale-gen --purge de_DE.UTF-8\""
-	run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo -e 'LANG=\"de_DE.UTF-8\"\nLANGUAGE=\"de_DE:en\"\n' > /etc/default/locale\""
+	run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo -e 'LANG=\"de_DE.UTF-8\"\nLANGUAGE=\"de_DE:de\"\n' > /etc/default/locale\""
 }
 
+install_rust(){
+	 debug "Install rust ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y curl git\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"curl https://sh.rustup.rs -sSf > /root/rustup.sh\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"chmod +x /root/rustup.sh\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"./root/rustup.sh --default-toolchain nightly -y\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"rm /root/rustup.sh\""
+}
 
+# Obsolete
 enable_mali_drivers(){
   debug "Enable mali drivers ..."
   if [ z${DISTRIBUTION} = "zjessie" ]; then
@@ -128,20 +137,24 @@ fi
 EOF"
   run "sudo chmod +x ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/weston.sh"
 }
+
 disable_getty(){
-  if [ z${DISTRIBUTION} = "zsid" ]; then
-    debug "Disable getty's ..."
+	debug "Disable getty's ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"systemctl disable getty@.service\""
-  fi
 }
+
+# TODO Make hostname dynamic
 setup_hostname() {
   debug "Set hostname ..."
   run "echo xmz-mod-touch | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/hostname"
 }
+
 install_wlan(){
   debug "Install wlan subsystem ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y wpasupplicant net-tools wireless-tools isc-dhcp-client"
 }
+
+# FIXME Neaded?
 install_wlan_firmware(){
   if [ z${DISTRIBUTION} = "zsid" ]; then
     debug "Install Broadcom Firmware ..."
@@ -149,6 +162,7 @@ install_wlan_firmware(){
     run "sudo wget -O ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/lib/firmware/brcm/brcmfmac43362-sdio.txt http://dl.cubieboard.org/public/Cubieboard/benn/firmware/ap6210/nvram_ap6210.txt"
   fi
 }
+
 setup_wlan(){
   debug "Configure wlan subsystem ..."
   if [ z${DISTRIBUTION} = "zjessie" ]; then
@@ -173,6 +187,7 @@ network={
 }
 EOF"
 }
+
 setup_network_interfaces(){
   debug "Seting up network interfaces ..."
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/network/interfaces
@@ -220,6 +235,8 @@ source "$(dirname $0)/lib/option_parser.sh"
 install_dependencies
 
 setup_locales
+
+install_rust
 
 #enable_mali_drivers
 
