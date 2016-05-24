@@ -16,6 +16,7 @@ prepare_system() {
 	run "sudo apt-get install -y debootstrap"
 }
 
+# FIXME use an if for qemu-arm-static and an elseif for qemu-arm
 add_qemu() {
   debug "Add qemu support ..."
   run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/bin"
