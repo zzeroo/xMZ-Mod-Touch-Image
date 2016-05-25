@@ -54,6 +54,7 @@ create_boot_script(){
     load mmc 0:1 0x42000000 zImage || load mmc 0:1 0x42000000 boot/zImage
     bootz 0x42000000 - 0x43000000
 EOF"
+  run "sudo mkimage -C none -A arm -T script -d ${mnt}/boot.cmd ${mnt}/boot.scr"
 }
 
 uboot_splash(){
