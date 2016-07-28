@@ -6,8 +6,8 @@ if [[ $? != 4 ]]; then
 	exit 1
 fi
 
-SHORT=o:c:e:d:svfh
-LONG=output:,container_dir:,environment:,distribution:,simulate,verbose,force,help
+SHORT=o:c:d:svfh
+LONG=output:,container_dir:,distribution:,simulate,verbose,force,help
 
 PARSED=`getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@"`
 if [[ $? != 0 ]]; then
@@ -27,10 +27,6 @@ while true; do
 			;;
 		-d|--distribution)
 			DISTRIBUTION="$2"
-			shift 2 # past argument
-			;;
-		-e|--environment)
-			ENVIRONMENT="$2"
 			shift 2 # past argument
 			;;
 		-f|--force)
@@ -67,14 +63,14 @@ done
 # TODO: replace hard coded CONTAINER_DIR paths in the scripts
 # If container_dir is not set, we use the systemd-nspawn default path
 [ x"${CONTAINER_DIR}" = x ] && CONTAINER_DIR="/var/lib/container"
-# default environent: production
-[ x"${ENVIRONMENT}" = x ] && ENVIRONMENT="development"
 # If distribution is not given as parameter we use debian sid.
 [ x"${DISTRIBUTION}" = x ] && DISTRIBUTION="sid"
 # Kernel Sources path
 [ x"${KERNELSOURCES}" = x ] && KERNELSOURCES="/usr/src/linux"
+# Default hostname
+[ x"${DEFAULT_HOSTNAME}" = x ] && DEFAULT_HOSTNAME="xmz-mod-touch"
 # Root Password
-[ x"${ROOT_PASSWORD}" = x ] && ROOT_PASSWORD="asrael"
+[ x"${ROOT_PASSWORD}" = x ] && ROOT_PASSWORD="930440"
 
 # CONSTANTES
 # Name of the image, the file is located in script dir,
@@ -82,4 +78,5 @@ done
 IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage.img
 # Image size in mega byte
 IMAGE_SIZE_MB=4000
-
+# Compose the final container name
+CONTAINER_NAME=${DISTRIBUTION}_armhf${SUFFIX}
