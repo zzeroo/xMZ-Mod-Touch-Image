@@ -26,28 +26,28 @@ setup_locales() {
 	debug "Setup german locales ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y locales\""
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"locale-gen --purge de_DE.UTF-8\""
-	run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo -e 'LANG=\"de_DE.UTF-8\"\nLANGUAGE=\"de_DE:de\"\n' > /etc/default/locale\""
-}
-
-install_rust(){
-	 debug "Install rust ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y curl git\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"curl https://sh.rustup.rs -sSf > /root/rustup.sh\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"chmod +x /root/rustup.sh\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"./root/rustup.sh --default-toolchain nightly -y\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"rm /root/rustup.sh\""
-}
-
-# Obsolete
-enable_mali_drivers(){
-  debug "Enable mali drivers ..."
-  if [ z${DISTRIBUTION} = "zjessie" ]; then
-  run "cat <<-'EOF' | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/modules
-mali
-ump
-mali_drm
+  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/default/locale
+LANG=\"de_DE.UTF-8\"
+LANGUAGE=\"de_DE:de\"
+Lde_DE.UTF-8_CTYPE=\"de_DE.UTF-8\"
+LC_NUMERIC=\"de_DE.UTF-8\"
+LC_TIME=\"de_DE.UTF-8\"
+LC_COLLATE=\"de_DE.UTF-8\"
+LC_MONETARY=\"de_DE.UTF-8\"
+LC_MESSAGES=\"de_DE.UTF-8\"
+LC_PAPER=\"de_DE.UTF-8\"
+LC_NAME=\"de_DE.UTF-8\"
+LC_ADDRESS=\"de_DE.UTF-8\"
+LC_TELEPHONE=\"de_DE.UTF-8\"
+LC_MEASUREMENT=\"de_DE.UTF-8\"
+LC_IDENTIFICATION=\"de_DE.UTF-8\"
+LC_ALL=C
 EOF"
-  fi
+}
+
+disable_systemd_logging_to_disk() {
+  debug "Disable logging to disk ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo \"Storage=none\" >> /etc/systemd/journald.conf\""
 }
 
 install_mesa(){
@@ -115,6 +115,7 @@ EOF"
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf systemctl enable weston.service"
 }
 
+# TODO Mach ein feines systemd unit file
 create_weston_sh(){
   debug "Create weston.sh (weston start script) ..."
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/weston.sh
@@ -146,28 +147,16 @@ disable_getty(){
 # TODO Make hostname dynamic
 setup_hostname() {
   debug "Set hostname ..."
-  run "echo xmz-mod-touch | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/hostname"
+  run "echo ${DEFAULT_HOSTNAME} | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/hostname"
 }
 
-install_wlan(){
+install_wlan_tools(){
   debug "Install wlan subsystem ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y wpasupplicant net-tools wireless-tools isc-dhcp-client"
-}
-
-# FIXME Neaded?
-install_wlan_firmware(){
-  if [ z${DISTRIBUTION} = "zsid" ]; then
-    debug "Install Broadcom Firmware ..."
-    run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/lib/firmware/brcm"
-    run "sudo wget -O ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/lib/firmware/brcm/brcmfmac43362-sdio.txt http://dl.cubieboard.org/public/Cubieboard/benn/firmware/ap6210/nvram_ap6210.txt"
-  fi
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y wpasupplicant net-tools wireless-tools isc-dhcp-client firmware-brcm80211"
 }
 
 setup_wlan(){
   debug "Configure wlan subsystem ..."
-  if [ z${DISTRIBUTION} = "zjessie" ]; then
-    run "echo ap6210 | sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/modules"
-  fi
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/wpa_supplicant/wpa_supplicant.conf
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
@@ -184,6 +173,12 @@ network={
        id_str=\"home\"
        #psk=\"asrael666\"
        psk=1fb43eea04aa313297fac210ac83e85935590b03566de26ad46c3d379fd15c04
+}
+
+network={
+        ssid=\"pinky\"
+        #psk=\"eeepcwlanAThome2016\"
+        psk=150271e402147111d16e4aaaa952adac37567323eb0b40642478e9d0fb1fe359
 }
 EOF"
 }
@@ -213,8 +208,8 @@ EOF"
 }
 
 install_ssh_server(){
-   debug "Install OpenSSH Server ..."
-   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y openssh-server"
+  debug "Install OpenSSH Server ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y openssh-server"
 }
 
 setup_remote_access(){
@@ -224,6 +219,43 @@ setup_remote_access(){
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3Igwfs5fS9EPXDyHohTW72z4WfCu44nGl40j9wxqs/yn5Nc2csTILYJCRcZPB+I0qly+YlohCnQvd1/It2JWp8n2kGK1TS6Vy3C0IEWXSsvb4ZX5xFX699r9rlELOWOZyxHMeRByQ4pk2C+O0QiiUlJhYxdVA+IuoR0C+cfH+wGWW/MnSwni57znvrn5rZwrfgM4YWhMq+YUlHG+BgUb7MJ2wNSWfeuxUUItAu191WLSVFcyIox1ECQh2q8NrBPddufyfn9lRZK12TJu5JsCguDgMKGQeu3Y1m/BFbiBBy6vAh1ucgZto8zBR9b0HaNxwScsyxkNSxKtRYjUV2rIb smueller@nb-smueller
 EOF"
 }
+
+install_oh_my_zsh(){
+  debug "Install oh-my-zsh ( https://github.com/robbyrussell/oh-my-zsh/ ) ..."
+  run "sudo systemd-nspawn -D  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh\""
+  run "sudo systemd-nspawn -D  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"chmod +x ./install.sh\""
+  run "sudo systemd-nspawn -D  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"./install.sh\""
+  run "sudo systemd-nspawn -D  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"rm ./install.sh\""
+  run "sudo systemd-nspawn -D  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo DISABLE_UPDATE_PROMPT=\"true\">>/root/.zshrc\""
+  run "sudo systemd-nspawn -D  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo DISABLE_AUTO_UPDATE=\"true\">>/root/.zshrc\""
+}
+
+make_zsh_default(){
+  debug "Make zsh default shell ..."
+  run "sudo systemd-nspawn -D  ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"chsh -s /bin/zsh\""
+}
+
+install_rust(){
+  debug "Install rust ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y curl git\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"curl https://sh.rustup.rs -sSf > /root/rustup.sh\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"chmod +x /root/rustup.sh\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"./root/rustup.sh --default-toolchain nightly -y\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"rm /root/rustup.sh\""
+  run "echo export PATH="\\\$HOME/.cargo/bin:\\\$PATH"|sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.zshrc"
+}
+
+install_libgtk_dev(){
+  debug "Install libgtk-3-dev ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y libgtk-3-dev\""
+}
+
+install_libnanomsg(){
+  debug "Install libnanomsg ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y libnanomsg-dev\""
+}
+
+
 
 # Main part of the script
 
@@ -236,9 +268,7 @@ install_dependencies
 
 setup_locales
 
-install_rust
-
-#enable_mali_drivers
+disable_systemd_logging_to_disk
 
 #install_mesa
 
@@ -254,9 +284,7 @@ create_weston_sh
 
 setup_hostname
 
-install_wlan
-
-install_wlan_firmware
+install_wlan_tools
 
 setup_wlan
 
@@ -265,3 +293,13 @@ setup_network_interfaces
 install_ssh_server
 
 setup_remote_access
+
+install_oh_my_zsh
+
+make_zsh_default
+
+install_rust
+
+install_libgtk_dev
+
+install_libnanomsg

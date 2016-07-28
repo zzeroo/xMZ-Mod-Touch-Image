@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# This script creates a basic image file.
+# Dieses Skript kopiert alle nötigen Dateien auf die 2. Partition der SD Karte
 
 EXAMPLE="./`basename $0` -s"
 #
@@ -26,7 +26,6 @@ create_loop_device_with_offset(){
 	run "sudo losetup --offset $[2048 * 512]  /dev/loop11 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || exit 1"
 	run "sudo losetup --offset $[43008 * 512] /dev/loop12 \"${OUTPUT_DIR}/${IMAGE_NAME}\" || exit 1"
 }
-
 
 mount_image_partition_2(){
   debug "Mount image partition 2 ..."
