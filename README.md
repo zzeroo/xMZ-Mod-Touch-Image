@@ -1,14 +1,19 @@
-# Script collection
+Script Sammlung zum Erstellen des Betriebssystem Images für die 'xMZ-Mod-Touch'-Platform
 
-Used to build the xMZ-Mod-Touch filesystem in stytemd-nspawn containers.
+# Vorbereitungen
+Diese Skripte sind dafür vorgesehen auf einem Debian System gestartet zu werden.
+Ich empfehle ausdrücklich ein Debian `sid` für diesen Zweck zu verwenden.
 
-## Executation flow and function description
+```bash
+apt-get install qemu-user-static binfmt-support
+apt-get install systemd-container
+```
 
-### 01.build_systemd-nspawn_containers.sh
 
-Fetches a debian baseimage via debootstrap and updates the password with the
-systemd-nspawn tool.
-Then 2 systemd-nspawn containers are derived from this basic template container.
+# Reihenfolge und Funktionsbeschreibung
+
+## 01.build_systemd-nspawn_containers.sh
+
 
 ### 02.build_development_files.sh
 
@@ -38,5 +43,3 @@ into the repo root
 
 - https://github.com/zzeroo/xMZ-Mod-Touch-Image.git
 - https://github.com/zzeroo/xMZ-Mod-Touch-GUI.git
-
-
