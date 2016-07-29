@@ -5,14 +5,16 @@ EXAMPLE="./`basename $0` -s"
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.2.0
+SCRIPTVERSION=0.3.0
 
 
 # include generic functions (echo_b(), and debug() and so on)
 source "$(dirname $0)/lib/generic_functions.sh"
 
+
+
 prepare_system() {
-	debug "Bereite system vor ..."
+	debug "Bereite Development System vor ..."
 	run "sudo apt-get install -y debootstrap"
 }
 
@@ -72,4 +74,3 @@ add_qemu
 debootstrap_container
 
 set_passwd_in_container
-
