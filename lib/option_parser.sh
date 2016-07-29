@@ -6,8 +6,8 @@ if [[ $? != 4 ]]; then
 	exit 1
 fi
 
-SHORT=o:c:d:svfh
-LONG=output:,container_dir:,distribution:,simulate,verbose,force,help
+SHORT=o:c:d:svfhk:
+LONG=output:,container_dir:,distribution:,simulate,verbose,force,help,kernel_source:
 
 PARSED=`getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@"`
 if [[ $? != 0 ]]; then
