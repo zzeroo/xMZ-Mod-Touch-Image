@@ -15,6 +15,13 @@ source "$(dirname $0)/lib/generic_functions.sh"
 
 
 
+enable_apt_non_free(){
+  debug "Aktiviere 'contrib non-free' Apt Repos ..."
+  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/apt/sources.list
+deb http://httpredir.debian.org/debian sid main contrib non-free
+EOF"
+}
+
 install_dependencies(){
   debug "Install dependencies ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get update && apt-get upgrade -y\""
@@ -151,7 +158,7 @@ setup_hostname() {
 }
 
 install_wlan_tools(){
-  debug "Install wlan subsystem ..."
+  debug "Installiere WLAN Subsystem ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y wpasupplicant net-tools wireless-tools isc-dhcp-client firmware-brcm80211"
 }
 
@@ -263,6 +270,8 @@ install_libnanomsg(){
 source "$(dirname $0)/lib/option_parser.sh"
 
 
+
+enable_apt_non_free
 
 install_dependencies
 
