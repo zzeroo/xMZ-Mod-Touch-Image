@@ -54,7 +54,9 @@ EOF"
 
 disable_systemd_logging_to_disk() {
   debug "Disable logging to disk ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo \"Storage=none\" >> /etc/systemd/journald.conf\""
+  run "# http://bikealive.nl/tips-tricks.html"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo \"Storage=volatile\" >> /etc/systemd/journald.conf\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo \"SystemMaxUse=2M\" >> /etc/systemd/journald.conf\""
 }
 
 install_mesa(){
