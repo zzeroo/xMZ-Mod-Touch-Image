@@ -8,16 +8,15 @@
 #
 # Exit on error or variable unset
 set -o errexit -o nounset
+
 EXAMPLE="./`basename $0` -s"
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.3.0
-
+SCRIPTVERSION=0.4.0
 
 # include generic functions (echo_b(), and debug() and so on)
 source "$(dirname $0)/lib/generic_functions.sh"
-
 
 
 prepare_system() {
