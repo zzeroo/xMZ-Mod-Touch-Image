@@ -1,4 +1,6 @@
 #!/bin/bash
+# Exit on error or variable unset
+set -o errexit -o nounset
 
 # Functions and logic
 # Bold echo commands

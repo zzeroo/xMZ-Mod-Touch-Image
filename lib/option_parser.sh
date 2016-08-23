@@ -1,5 +1,26 @@
 #!/bin/bash
+# Exit on error or variable unset
+set -o errexit -o nounset
 
+# Variables
+OUTPUT_DIR=""
+CONTAINER_DIR=""
+DISTRIBUTION=""
+KERNELSOURCES=""
+DEFAULT_HOSTNAME=""
+ROOT_PASSWORD=""
+SUFFIX=""
+# CONSTANTES
+# Name of the image, the file is located in script dir,
+# or can given with the "output_dir" parameter
+IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage.img
+# Image size in mega byte
+IMAGE_SIZE_MB=4000
+# Compose the final container name
+CONTAINER_NAME=${DISTRIBUTION}_armhf${SUFFIX}
+
+
+# Test ob getopt existiert
 getopt --test > /dev/null
 if [[ $? != 4 ]]; then
 	echo "I’m sorry, `getopt --test` failed in this environment."
@@ -71,12 +92,3 @@ done
 [ x"${DEFAULT_HOSTNAME}" = x ] && DEFAULT_HOSTNAME="xmz-mod-touch"
 # Root Password
 [ x"${ROOT_PASSWORD}" = x ] && ROOT_PASSWORD="930440"
-
-# CONSTANTES
-# Name of the image, the file is located in script dir,
-# or can given with the "output_dir" parameter
-IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage.img
-# Image size in mega byte
-IMAGE_SIZE_MB=4000
-# Compose the final container name
-CONTAINER_NAME=${DISTRIBUTION}_armhf${SUFFIX}

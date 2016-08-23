@@ -75,7 +75,7 @@ cleanup_loop_devices(){
 # Main part of the script
 
 # include option parser
-source "$(dirname $0)/lib/option_parser.sh"
+source "$(dirname $0)/lib/option_parser.sh" ||:
 
 
 
