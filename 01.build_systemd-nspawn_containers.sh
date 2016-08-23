@@ -71,7 +71,7 @@ set_passwd_in_container(){
 
 create_btrfs_snapshot() {
 	debug "Erzeuge ein btrfs Snapshot von ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template nach ${CONTAINER_DIR}/${DISTRIBUTION}_armhf..."
-	run "sudo btrfs subvolumen create ${CONTAINER_DIR}/${DISTRIBUTION}_armhf"
+	run "sudo btrfs subvolume create ${CONTAINER_DIR}/${DISTRIBUTION}_armhf"
 	run "sudo cp --reflink=always -aR ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/* ${CONTAINER_DIR}/${DISTRIBUTION}_armhf"
 }
 
