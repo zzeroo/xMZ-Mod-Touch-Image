@@ -1,10 +1,6 @@
 #!/bin/bash
 # Dieses Script erzeugt ein Basis nspawn Container mit qemu-arm Unterstützung.
-# Am Ende dieses Scripts wird ein btrfs Snapshot dieses Containers erzeugt,
-# in diesem Snapshot werden dann alle weiteren Änderungen vorgenommen.
-# So ist es zum Möglich das schon bestehende Image Verzeichnis mit
-# den Debian Tools `apt-get update && apt-get dist-upgrade` auf den neuesten
-# Stand zu bingen, ohne immer wieder mit `debootstrap` von Vorn anzufangen.
+# Am Ende dieses Scripts wird ein btrfs Snapshot dieses Containers erzeugt.
 #
 # Exit on error or variable unset
 set -o errexit -o nounset
@@ -13,11 +9,19 @@ EXAMPLE="./`basename $0` -s"
 
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION=0.4.0
+SCRIPTVERSION="0.4.0"-$(git rev-parse --short HEAD)
 
 # include generic functions (echo_b(), and debug() and so on)
 source "$(dirname $0)/lib/generic_functions.sh"
+# include option parser
+source "$(dirname $0)/lib/option_parser.sh" ||:
 
+
+prepare_container(){
+	debug "Erzeuge btrfs subvolumen, davon kann dann ein Snapshot erzeugt werden ..."
+	run "sudo [ -d ${CONTAINER_DIR} ] || sudo mkdir -p ${CONTAINER_DIR}"
+	run "sudo btrfs subvolume create ${CONTAINER_DIR}/${DISTRIBUTION}_armhf"
+}
 
 prepare_system() {
 	debug "Bereite Development System vor ..."
@@ -27,9 +31,9 @@ prepare_system() {
 # FIXME use an if for qemu-arm-static and an elseif for qemu-arm
 add_qemu() {
   debug "Richte qemu Support ein..."
-  run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/usr/bin"
+  run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/bin"
   if [[ -f /usr/bin/qemu-arm-static ]] || [[ -f /usr/bin/qemu-arm ]]; then
-    run "sudo bash -c \"cp /usr/bin/qemu-arm-static ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/usr/bin/qemu-arm-static\""
+    run "sudo bash -c \"cp /usr/bin/qemu-arm-static ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/usr/bin/qemu-arm-static\""
   else
     print_quemu_setup
     # If we're not on simulate mode exit here.
@@ -58,27 +62,20 @@ print_quemu_setup() {
 }
 
 debootstrap_container(){
-  debug "Dbootstrapping ${DISTRIBUTION} to ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template ..."
-	run "# sudo debootstrap --variant=minbase --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/"
-	run "sudo debootstrap --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/"
+  debug "Dbootstrapping ${DISTRIBUTION} to ${CONTAINER_DIR}/${DISTRIBUTION}_armhf ..."
+	run "# sudo debootstrap --variant=minbase --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/"
+	run "sudo debootstrap --arch=armhf ${DISTRIBUTION} ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/"
 }
 
 set_passwd_in_container(){
   debug "Root Password in Template Container setzen ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template /bin/bash -c \"echo -e \\\"${ROOT_PASSWORD}\n${ROOT_PASSWORD}\\\" | passwd\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"echo -e \\\"${ROOT_PASSWORD}\n${ROOT_PASSWORD}\\\" | passwd\""
 }
 
-create_btrfs_snapshot() {
-	debug "Erzeuge ein btrfs Snapshot von ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template nach ${CONTAINER_DIR}/${DISTRIBUTION}_armhf..."
-	run "sudo btrfs subvolume create ${CONTAINER_DIR}/${DISTRIBUTION}_armhf"
-	run "sudo cp --reflink=always -aR ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-template/* ${CONTAINER_DIR}/${DISTRIBUTION}_armhf"
-}
 
 
 # Main part of the script
-
-# include option parser
-source "$(dirname $0)/lib/option_parser.sh" ||:
+prepare_container
 
 prepare_system
 
@@ -88,4 +85,4 @@ debootstrap_container
 
 set_passwd_in_container
 
-create_btrfs_snapshot
+_GENERIC_create_btrfs_snapshot

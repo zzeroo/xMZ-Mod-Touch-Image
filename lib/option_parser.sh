@@ -2,7 +2,7 @@
 # Exit on error or variable unset
 set -o errexit -o nounset
 
-# Variables
+# Variablen
 OUTPUT_DIR=""
 CONTAINER_DIR=""
 DISTRIBUTION=""

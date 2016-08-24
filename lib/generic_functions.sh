@@ -3,6 +3,7 @@
 set -o errexit -o nounset
 # Variablen
 SIMULATE=""
+VERBOSE=""
 
 # Functions and logic
 # Bold echo commands
@@ -74,4 +75,9 @@ run() {
 	else
 		eval "$1" &>/dev/null
 	fi
+}
+
+_GENERIC_create_btrfs_snapshot() {
+	debug "Erzeuge ein btrfs Snapshot von ${CONTAINER_DIR}/${DISTRIBUTION}_armhf nach ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-`basename -s.sh $0`..."
+	run "sudo btrfs subvolume snapshot ${CONTAINER_DIR}/${DISTRIBUTION}_armhf ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-`basename -s.sh $0`"
 }
