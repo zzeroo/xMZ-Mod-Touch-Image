@@ -53,8 +53,8 @@ EOF\""
 
 
 # Main part of the script
-#checkout_meta_repo
+checkout_meta_repo
 
-build_xmz_server
+#build_xmz_server
 
 _GENERIC_create_btrfs_snapshot
