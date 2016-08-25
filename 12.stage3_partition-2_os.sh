@@ -6,7 +6,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION="0.4.1"-$(git rev-parse --short HEAD)
+SCRIPTVERSION="0.5.0"-$(git rev-parse --short HEAD)
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -40,7 +40,7 @@ copy_in_basic_filesystem(){
   run "sudo rsync -a --exclude '*root*' ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/* /mnt/disk"
   run "[ -d /mnt/disk/root  ] || sudo mkdir /mnt/disk/root/"
   run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.[^.]* /mnt/disk/root\"/"
-  run "#sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/{weston.sh,.bashrc,.config,.cargo*,.multirust*,.ssh,.oh-my-zsh,,.zsh*} /mnt/disk/root\"/"
+  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/{weston.sh,xMZ-Mod-Touch-Software} /mnt/disk/root\"/"
 }
 
 copy_in_modules(){

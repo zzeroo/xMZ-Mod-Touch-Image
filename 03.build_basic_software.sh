@@ -14,7 +14,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION="0.4.0"-$(git rev-parse --short HEAD)
+SCRIPTVERSION="0.5.0"-$(git rev-parse --short HEAD)
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -70,20 +70,23 @@ EOF"
 setup_systemd_weston_unit(){
   debug "Configure systemd to autostart weston ..."
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/systemd/system/weston.service
-[Unit]
+[[Unit]
 Description=Weston launcher
+RequiresMountsFor=/run
 After=getty@tty1.service
 
 [Service]
-Environment=PATH=/usr/bin:/bin:/usr/sbin:/sbin
-Environment=HOME=/root
-ExecStart=/root/weston.sh
-Restart=always
+Restart=alway
 RestartSec=10
+User=root
+EnvironmentFile=-/etc/default/weston
+Environment=XDG_RUNTIME_DIR=/run/user/root
+ExecStartPre=/bin/mkdir -p /run/user/root
+ExecStartPre=/bin/chmod 0700 /run/user/root
+ExecStart=/usr/bin/weston --tty=1 --log=/var/log/weston.log
 
 [Install]
-Alias=display-manager.service
-WantedBy=graphical.target
+WantedBy=multi-user.target
 EOF"
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf systemctl enable weston.service"
 }
@@ -97,10 +100,9 @@ create_weston_sh(){
 # Weston startup file.
 #   Dieses Script erstellt die Umgebung und startet weston
 export XDG_CONFIG_HOME=\"/etc\"
-export XORGCONFIG=\"/etc/xorg.conf\"
 
 if test -z \"\${XDG_RUNTIME_DIR}\"; then
-    export XDG_RUNTIME_DIR=\"/run/shm/wayland\"
+    export XDG_RUNTIME_DIR=\"/run/user/root\"
     if ! test -d \"\${XDG_RUNTIME_DIR}\"; then
         mkdir \"\${XDG_RUNTIME_DIR}\"
         chmod 0700 \"\${XDG_RUNTIME_DIR}\"
@@ -132,10 +134,7 @@ make_zsh_default(){
 install_rust(){
   debug "Install rust ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y curl git\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"curl https://sh.rustup.rs -sSf > /root/rustup.sh\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"chmod +x /root/rustup.sh\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"./root/rustup.sh --default-toolchain nightly -y\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"rm /root/rustup.sh\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y\""
   run "echo export PATH="\\\$HOME/.cargo/bin:\\\$PATH"|sudo tee -a ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.zshrc"
 }
 

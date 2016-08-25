@@ -10,7 +10,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION="0.1.0"-$(git rev-parse --short HEAD)
+SCRIPTVERSION="0.2.0"-$(git rev-parse --short HEAD)
 
 
 # include generic functions (echo_b(), and debug() and so on)

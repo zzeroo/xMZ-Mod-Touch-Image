@@ -11,7 +11,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION="0.4.0"-$(git rev-parse --short HEAD)
+SCRIPTVERSION="0.5.0"-$(git rev-parse --short HEAD)
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -23,7 +23,8 @@ source "$(dirname $0)/lib/option_parser.sh" ||:
 enable_apt_non_free(){
   debug "Aktiviere 'contrib non-free' Apt Repos ..."
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/apt/sources.list
-deb http://httpredir.debian.org/debian sid main contrib non-free
+# deb http://httpredir.debian.org/debian sid main contrib non-free
+deb http://ftp.de.debian.org/debian sid main contrib non-free
 EOF"
 }
 

@@ -29,7 +29,7 @@ show_help(){
   echo_b "Usage:"
 	echo -e "\t`basename $0`\t[ARGUMENTS]"
 	echo
-	echo_b "ARGUMENTS:"
+	echo_b "Arguments:"
   echo -e "\t-c, --container_dir\tWhere is the container store path (default: /var/lib/container/)"
   echo -e "\t-d, --distribution\tDebian distribution used by debootstrap (default: sid)"
   echo -e "\t-e, --environment\tEnvironment should be production or development, but can be all value, too (default: development)"
@@ -79,7 +79,8 @@ run() {
 
 _GENERIC_create_btrfs_snapshot() {
 	debug "Erzeuge ein btrfs Snapshot von ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} nach ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}-`basename -s.sh $0`..."
-	run "sudo btrfs subvolume snapshot ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}-`basename -s.sh $0`"
+  run "[ -d ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}-`basename -s.sh $0` ] && sudo mv ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}-`basename -s.sh $0` ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}-`basename -s.sh $0`-`date +%F-%T-%N` ||:"
+  run "sudo btrfs subvolume snapshot ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}-`basename -s.sh $0`"
 }
 
 _GENERIC_create_image_copy() {
