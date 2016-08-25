@@ -6,7 +6,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION="0.4.0"-$(git rev-parse --short HEAD)
+SCRIPTVERSION="0.4.1"-$(git rev-parse --short HEAD)
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -126,4 +126,4 @@ make_filesystems
 
 cleanup_loop_devices
 
-_GENERIC_create_btrfs_snapshot
+_GENERIC_create_image_copy

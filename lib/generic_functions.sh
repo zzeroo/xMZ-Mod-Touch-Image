@@ -78,6 +78,11 @@ run() {
 }
 
 _GENERIC_create_btrfs_snapshot() {
-	debug "Erzeuge ein btrfs Snapshot von ${CONTAINER_DIR}/${DISTRIBUTION}_armhf nach ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-`basename -s.sh $0`..."
-	run "sudo btrfs subvolume snapshot ${CONTAINER_DIR}/${DISTRIBUTION}_armhf ${CONTAINER_DIR}/${DISTRIBUTION}_armhf-`basename -s.sh $0`"
+	debug "Erzeuge ein btrfs Snapshot von ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} nach ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}-`basename -s.sh $0`..."
+	run "sudo btrfs subvolume snapshot ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}-`basename -s.sh $0`"
+}
+
+_GENERIC_create_image_copy() {
+	debug "Erzeuge eine Kopie des Images ${OUTPUT_DIR}/${IMAGE_NAME} nach ${OUTPUT_DIR}/${IMAGE_NAME}-`basename -s.sh $0`..."
+	run "cp ${OUTPUT_DIR}/${IMAGE_NAME} ${OUTPUT_DIR}/${IMAGE_NAME}-`basename -s.sh $0`"
 }

@@ -6,7 +6,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION="0.4.0"-$(git rev-parse --short HEAD)
+SCRIPTVERSION="0.4.1"-$(git rev-parse --short HEAD)
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -39,11 +39,10 @@ create_boot_script(){
   export mnt=/mnt/disk
   run "export mnt=/mnt/disk"
   # Check if dir is present, if not create
-  run "[[ ! -d ${mnt}  ]] && sudo mkdir ${mnt}"
+  run "[[ ! -d ${mnt}  ]] && sudo mkdir ${mnt}" ||:
   # Check if dir is already mounted, fail if so
-  run "mountpoint ${mnt} >/dev/null && error \"${mnt} ist schon gemounted\""
+  run "mountpoint ${mnt} >/dev/null && error \"${mnt} ist schon gemounted\"" ||:
   run "sudo mount /dev/loop11 ${mnt}"
-
   run "cat <<-'EOF' |sudo tee ${mnt}/boot.cmd
     # apt-get install u-boot-tools
 		# mkimage -C none -A arm -T script -d boot.cmd boot.scr
@@ -103,4 +102,4 @@ cleanup_mount
 
 cleanup_loop_devices
 
-_GENERIC_create_btrfs_snapshot
+_GENERIC_create_image_copy

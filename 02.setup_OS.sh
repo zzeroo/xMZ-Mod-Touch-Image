@@ -30,8 +30,8 @@ EOF"
 install_dependencies(){
   debug "Install dependencies ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get update && apt-get upgrade -y\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y zsh tmux git curl"
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf apt-get install -y aptitude build-essential pkg-config libusb-1.0-0-dev zlib1g-dev"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y zsh tmux git curl\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y aptitude build-essential pkg-config libusb-1.0-0-dev zlib1g-dev\""
 }
 
 setup_locales() {
@@ -39,21 +39,21 @@ setup_locales() {
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"apt-get install -y locales\""
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"locale-gen --purge de_DE.UTF-8\""
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/etc/default/locale
-LANG=\"de_DE.UTF-8\"
-LANGUAGE=\"de_DE:de\"
-Lde_DE.UTF-8_CTYPE=\"de_DE.UTF-8\"
-LC_NUMERIC=\"de_DE.UTF-8\"
-LC_TIME=\"de_DE.UTF-8\"
-LC_COLLATE=\"de_DE.UTF-8\"
-LC_MONETARY=\"de_DE.UTF-8\"
-LC_MESSAGES=\"de_DE.UTF-8\"
-LC_PAPER=\"de_DE.UTF-8\"
-LC_NAME=\"de_DE.UTF-8\"
-LC_ADDRESS=\"de_DE.UTF-8\"
-LC_TELEPHONE=\"de_DE.UTF-8\"
-LC_MEASUREMENT=\"de_DE.UTF-8\"
-LC_IDENTIFICATION=\"de_DE.UTF-8\"
-LC_ALL=C
+  LANG=de_DE.UTF-8
+  LANGUAGE=
+  LC_CTYPE=de_DE.UTF-8
+  LC_NUMERIC=\"de_DE.UTF-8\"
+  LC_TIME=\"de_DE.UTF-8\"
+  LC_COLLATE=\"de_DE.UTF-8\"
+  LC_MONETARY=\"de_DE.UTF-8\"
+  LC_MESSAGES=\"de_DE.UTF-8\"
+  LC_PAPER=\"de_DE.UTF-8\"
+  LC_NAME=\"de_DE.UTF-8\"
+  LC_ADDRESS=\"de_DE.UTF-8\"
+  LC_TELEPHONE=\"de_DE.UTF-8\"
+  LC_MEASUREMENT=\"de_DE.UTF-8\"
+  LC_IDENTIFICATION=\"de_DE.UTF-8\"
+  LC_ALL=
 EOF"
 }
 

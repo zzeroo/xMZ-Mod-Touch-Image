@@ -3,21 +3,19 @@
 set -o errexit -o nounset
 
 # Variablen
+ARCH=""
 OUTPUT_DIR=""
 CONTAINER_DIR=""
 DISTRIBUTION=""
+FORCE=""
 KERNELSOURCES=""
 DEFAULT_HOSTNAME=""
 ROOT_PASSWORD=""
 SUFFIX=""
+
 # CONSTANTES
-# Name of the image, the file is located in script dir,
-# or can given with the "output_dir" parameter
-IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage.img
 # Image size in mega byte
 IMAGE_SIZE_MB=4000
-# Compose the final container name
-CONTAINER_NAME=${DISTRIBUTION}_armhf${SUFFIX}
 
 
 # Test ob getopt existiert
@@ -27,8 +25,8 @@ if [[ $? != 4 ]]; then
 	exit 1
 fi
 
-SHORT=o:c:d:svfhk:
-LONG=output:,container_dir:,distribution:,simulate,verbose,force,help,kernel_source:
+SHORT=a:o:c:d:svfhk:
+LONG=arch:output:,container_dir:,distribution:,simulate,verbose,force,help,kernel_source:
 
 PARSED=`getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@"`
 if [[ $? != 0 ]]; then
@@ -38,6 +36,10 @@ eval set -- "$PARSED"
 
 while true; do
 	case "$1" in
+		-a|--arch)
+			ARCH="$2"
+			shift 2 # past argument
+			;;
 		-o|--output_dir)
 			OUTPUT_DIR="$2"
 			shift 2 # past argument
@@ -79,6 +81,7 @@ done
 
 # VARIABLES
 # DEFAULT VALUES
+[ x"${ARCH}" = x ] && ARCH="armhf"
 # If output dir is not given as parameter, use the current dir.
 [ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="`pwd`"
 # TODO: replace hard coded CONTAINER_DIR paths in the scripts
@@ -92,3 +95,9 @@ done
 [ x"${DEFAULT_HOSTNAME}" = x ] && DEFAULT_HOSTNAME="xmz-mod-touch"
 # Root Password
 [ x"${ROOT_PASSWORD}" = x ] && ROOT_PASSWORD="930440"
+
+# Name of the image, the file is located in script dir,
+# or can given with the "output_dir" parameter
+IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage.img
+# Compose the final container name
+CONTAINER_NAME=${DISTRIBUTION}_armhf${SUFFIX}
