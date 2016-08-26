@@ -37,10 +37,10 @@ mount_image_partition_2(){
 
 copy_in_basic_filesystem(){
   debug "Kopiere das Basic Dateisilesystem (nach Partition2) ..."
-  run "sudo rsync -a --exclude '*root*' ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/* /mnt/disk"
+  run "sudo rsync -a --exclude '*root*' ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/* /mnt/disk"
   run "[ -d /mnt/disk/root  ] || sudo mkdir /mnt/disk/root/"
-  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.[^.]* /mnt/disk/root\"/"
-  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/{weston.sh,xMZ-Mod-Touch-Software} /mnt/disk/root\"/"
+  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/.[^.]* /mnt/disk/root\"/"
+  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/{weston.sh,xMZ-Mod-Touch-Software} /mnt/disk/root\"/"
 }
 
 copy_in_modules(){
