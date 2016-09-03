@@ -24,8 +24,7 @@ enable_apt_non_free(){
   debug "Aktiviere 'contrib non-free' Apt Repos ..."
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/etc/apt/sources.list
 # deb http://httpredir.debian.org/debian sid main contrib non-free
-# deb http://ftp.de.debian.org/debian sid main contrib non-free
-deb http://ftp.de.debian.org/debian sid main
+deb http://ftp.de.debian.org/debian sid main contrib non-free
 EOF"
 }
 
