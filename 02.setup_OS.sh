@@ -24,7 +24,8 @@ enable_apt_non_free(){
   debug "Aktiviere 'contrib non-free' Apt Repos ..."
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/etc/apt/sources.list
 # deb http://httpredir.debian.org/debian sid main contrib non-free
-deb http://ftp.de.debian.org/debian sid main contrib non-free
+# deb http://ftp.de.debian.org/debian sid main contrib non-free
+deb http://ftp.de.debian.org/debian sid main
 EOF"
 }
 
@@ -35,41 +36,15 @@ install_dependencies(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"apt-get install -y aptitude build-essential pkg-config libusb-1.0-0-dev zlib1g-dev\""
 }
 
-setup_locales_old() {
-	debug "Setup german locales ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"apt-get install -y locales\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"locale-gen --purge de_DE.UTF-8\""
-  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/etc/default/locale
-  LANG=de_DE.UTF-8
-  LANGUAGE=
-  LC_CTYPE=de_DE.UTF-8
-  LC_NUMERIC=\"de_DE.UTF-8\"
-  LC_TIME=\"de_DE.UTF-8\"
-  LC_COLLATE=\"de_DE.UTF-8\"
-  LC_MONETARY=\"de_DE.UTF-8\"
-  LC_MESSAGES=\"de_DE.UTF-8\"
-  LC_PAPER=\"de_DE.UTF-8\"
-  LC_NAME=\"de_DE.UTF-8\"
-  LC_ADDRESS=\"de_DE.UTF-8\"
-  LC_TELEPHONE=\"de_DE.UTF-8\"
-  LC_MEASUREMENT=\"de_DE.UTF-8\"
-  LC_IDENTIFICATION=\"de_DE.UTF-8\"
-  LC_ALL=
-EOF"
-}
-
 setup_locales() {
   debug "Richte Timezone und Locale ein ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"apt-get install -y locales\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"
-  echo \"Europe/Berlin\" > /etc/timezone && \
-      dpkg-reconfigure -f noninteractive tzdata && \
-      sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
-      sed -i -e 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen && \
-      echo 'LANG=\"de_DE.UTF-8\"'>/etc/default/locale && \
-      dpkg-reconfigure --frontend=noninteractive locales && \
-      update-locale LANG=de_DE.UTF-8
-\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"echo \"Europe/Berlin\" > /etc/timezone\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"dpkg-reconfigure --frontend=noninteractive noninteractive tzdata\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"sed -i -e 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"echo 'LANG=\"de_DE.UTF-8\"'>/etc/default/locale\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"dpkg-reconfigure --frontend=noninteractive locales\""
 }
 
 disable_systemd_logging_to_disk() {
