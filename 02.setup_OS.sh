@@ -58,6 +58,21 @@ disable_getty(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"systemctl disable getty@.service\""
 }
 
+setup_fstab(){
+  debug "Setup fstab ..."
+  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/etc/fstab
+/dev/mmcblk0p2 / btrfs rw,relatime,ssd,noacl,space_cache,subvolid=5,subvol=/ 0 0
+EOF"
+}
+
+# TODO: Obsolete? Brauchen wir das noch?
+disable_screenblank(){
+  debug "disable screen blanking ..."
+  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/etc/issue
+\033[9;0]
+EOF"
+}
+
 # TODO Make hostname dynamic
 setup_hostname() {
   debug "Set hostname ..."
@@ -145,6 +160,10 @@ setup_locales
 disable_systemd_logging_to_disk
 
 disable_getty
+
+setup_fstab
+
+disable_screenblank
 
 setup_hostname
 

@@ -33,6 +33,13 @@ install_weston(){
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} apt-get install -y weston "
 }
 
+install_weston_from_source(){
+  debug "Installiere weston aus den Quellen ..."
+  run "sudo cp ./lib/weston-from-source-in-arm-environment.sh ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/weston-from-source-in-arm-environment.sh"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"chmod +x ./weston-from-source-in-arm-environment.sh\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"./weston-from-source-in-arm-environment.sh\""
+}
+
 install_weston_wallpaper(){
   debug "Install weston wallpaper ..."
   run "sudo mkdir -p  ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/usr/share/backgrounds/ra-gas/"
@@ -40,10 +47,10 @@ install_weston_wallpaper(){
   run "sudo chmod 644 ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/usr/share/backgrounds/ra-gas/Wallpaper-Desktop.png"
 }
 
-setup_weston(){
+setup_weston_ini(){
   debug "Setup weston ..."
   run "sudo mkdir -p ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/.config"
-  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/.config/weston.ini
+  run "cat <<EOF | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/.config/weston.ini
 [core]
 backend=fbdev-backend.so
 idle-time=0
@@ -69,7 +76,7 @@ EOF"
 
 setup_systemd_weston_unit(){
   debug "Configure systemd to autostart weston ..."
-  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/etc/systemd/system/weston.service
+  run "cat <<EOF | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/etc/systemd/system/weston.service
 [Unit]
 Description=Weston launcher
 RequiresMountsFor=/run
@@ -94,7 +101,7 @@ EOF"
 # TODO Mach ein feines systemd unit file
 create_weston_sh(){
   debug "Create weston.sh (weston start script) ..."
-  run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/weston.sh
+  run "cat <<EOF | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/weston.sh
 #!/bin/bash
 #
 # Weston startup file.
@@ -112,6 +119,14 @@ fi
 /usr/bin/weston --tty=1 --log=/var/log/weston.log
 EOF"
   run "sudo chmod +x ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/weston.sh"
+}
+
+disable_weston_mouse_pointer() {
+  debug "Deaktiviere ein input via udev Regel, der Mousezeiger verschwindet somit ..."
+  run "cat <<EOF | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/etc/udev/rules.d/disable_mousepointer.rules
+# https://wayland.freedesktop.org/libinput/doc/latest/udev_config.html
+ACTION==\"add|change\", KERNEL==\"event1\", ENV{ID_SEAT}=\"seat1\"
+EOF"
 }
 
 install_oh_my_zsh(){
@@ -151,17 +166,20 @@ install_libnanomsg(){
 
 
 # Main part of the script
-#install_mesa
+install_mesa
 
-install_weston
+#install_weston
+install_weston_from_source
 
 install_weston_wallpaper
 
-setup_weston
+setup_weston_ini
 
 setup_systemd_weston_unit
 
 create_weston_sh
+
+disable_weston_mouse_pointer
 
 install_oh_my_zsh
 
