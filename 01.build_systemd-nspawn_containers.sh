@@ -69,7 +69,7 @@ debootstrap_container(){
 
 set_passwd_in_container(){
   debug "Root Password in Template Container setzen ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"echo -e \\\"${ROOT_PASSWORD}\n${ROOT_PASSWORD}\\\" | passwd\""
+  run "sudo systemd-nspawn --register=false -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"echo -e \\\"${ROOT_PASSWORD}\n${ROOT_PASSWORD}\\\" | passwd\""
 }
 
 

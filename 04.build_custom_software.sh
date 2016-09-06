@@ -21,18 +21,18 @@ source "$(dirname $0)/lib/option_parser.sh" ||:
 # Funktionen
 checkout_meta_repo() {
   debug "Git Meta Repo auschecken ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf --chdir=/root /bin/bash -c \"git clone https://github.com/Kliemann-Service-GmbH/xMZ-Mod-Touch-Software.git\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf --chdir=/root /bin/bash -c \"cd xMZ-Mod-Touch-Software && git submodule init\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf --chdir=/root /bin/bash -c \"cd xMZ-Mod-Touch-Software && git submodule update\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"git clone https://github.com/Kliemann-Service-GmbH/xMZ-Mod-Touch-Software.git\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"cd xMZ-Mod-Touch-Software && git submodule init\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"cd xMZ-Mod-Touch-Software && git submodule update\""
 }
 
 # FIXME: Failed in Qemu Umgebung
 build_xmz_server() {
   debug "Git Meta Repo auschecken ..."
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf --chdir=/root /bin/bash -c \"source .cargo/env && cd xMZ-Mod-Touch-Software/xMZ-Mod-Touch-Server && cargo build --release\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf --chdir=/root /bin/bash -c \"cd xMZ-Mod-Touch-Software/xMZ-Mod-Touch-Server && cp -v ./target/release/xmz-server-bin /usr/bin/xmz-server\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf --chdir=/root /bin/bash -c \"cd xMZ-Mod-Touch-Software/xMZ-Mod-Touch-Server && cp -rv ./target/release/build/libmodbus-sys-*/out/lib/* /usr/lib/\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf --chdir=/root /bin/bash -c \"cd xMZ-Mod-Touch-Software/xMZ-Mod-Touch-Server && cat <<EOF >/etc/systemd/system/xmz-mod-touch-server.service
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"source .cargo/env && cd xMZ-Mod-Touch-Software/xMZ-Mod-Touch-Server && cargo build --release\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"cd xMZ-Mod-Touch-Software/xMZ-Mod-Touch-Server && cp -v ./target/release/xmz-server-bin /usr/bin/xmz-server\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"cd xMZ-Mod-Touch-Software/xMZ-Mod-Touch-Server && cp -rv ./target/release/build/libmodbus-sys-*/out/lib/* /usr/lib/\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"cd xMZ-Mod-Touch-Software/xMZ-Mod-Touch-Server && cat <<EOF >/etc/systemd/system/xmz-mod-touch-server.service
 #
 # xMZ-Mod-Touch-Server systemd unit file
 #
@@ -47,7 +47,7 @@ ExecStart=/usr/bin/xmz-server &
 Alias=xmz-server.service
 WantedBy=multi-user.target
 EOF\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_armhf /bin/bash -c \"systemctl enable xmz-mod-touch-server.service\""
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"systemctl enable xmz-mod-touch-server.service\""
 }
 
 

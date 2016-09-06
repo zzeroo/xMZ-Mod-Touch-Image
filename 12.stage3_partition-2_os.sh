@@ -37,10 +37,11 @@ mount_image_partition_2(){
 
 copy_in_basic_filesystem(){
   debug "Kopiere das Basic Dateisilesystem (nach Partition2) ..."
-  run "sudo rsync -a --exclude '*root*' ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/* /mnt/disk"
+  run "sudo rsync -a --exclude '*root*' ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/* /mnt/disk"
   run "[ -d /mnt/disk/root  ] || sudo mkdir /mnt/disk/root/"
-  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/.[^.]* /mnt/disk/root\"/"
-  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_armhf/root/{weston.sh,xMZ-Mod-Touch-Software} /mnt/disk/root\"/"
+  run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/.[^.]* /mnt/disk/root/\"/"
+	#run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/{weston.sh,xMZ-Mod-Touch-Software} /mnt/disk/root\"/"
+	run "sudo bash -c \"cp -r ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/* /mnt/disk/root/\"/"
 }
 
 copy_in_modules(){
@@ -48,23 +49,10 @@ copy_in_modules(){
   run "sudo cp -r ${KERNELSOURCES}/output/lib ${mnt}/"
 }
 
-setup_fstab(){
-  debug "Setup fstab ..."
-  run "cat <<-EOF |sudo tee ${mnt}/etc/fstab
-/dev/mmcblk0p2 / btrfs rw,relatime,ssd,noacl,space_cache,subvolid=5,subvol=/ 0 0
-EOF"
-}
-
-disable_screenblank(){
-  debug "disable screen blanking ..."
-  run "echo -ne \"\033[9;0]\" | sudo tee ${mnt}/etc/issue"
-}
-
 cleanup_mount(){
   debug "Umount ${mnt} ..."
   run "sudo umount ${mnt}"
 }
-
 
 cleanup_loop_devices(){
 	debug "Destroy loop devices ..."
@@ -98,10 +86,6 @@ mount_image_partition_2
 copy_in_basic_filesystem
 
 copy_in_modules
-
-setup_fstab
-
-disable_screenblank
 
 cleanup_mount
 
