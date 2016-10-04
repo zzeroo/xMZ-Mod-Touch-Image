@@ -25,8 +25,8 @@ if [[ $? != 4 ]]; then
 	exit 1
 fi
 
-SHORT=a:o:c:d:svfhk:
-LONG=arch:output:,container_dir:,distribution:,simulate,verbose,force,help,kernel_source:
+SHORT=a:o:c:d:svfhi:k:
+LONG=arch:output:,container_dir:,distribution:,simulate,verbose,force,help,image_name:,kernel_source:
 
 PARSED=`getopt --options $SHORT --longoptions $LONG --name "$0" -- "$@"`
 if [[ $? != 0 ]]; then
@@ -38,39 +38,43 @@ while true; do
 	case "$1" in
 		-a|--arch)
 			ARCH="$2"
-			shift 2 # past argument
+			shift 2
 			;;
 		-o|--output_dir)
 			OUTPUT_DIR="$2"
-			shift 2 # past argument
+			shift 2
 			;;
 		-c|--container_dir)
 			CONTAINER_DIR="$2"
-			shift 2 # past argument
+			shift 2
 			;;
 		-d|--distribution)
 			DISTRIBUTION="$2"
-			shift 2 # past argument
+			shift 2
 			;;
 		-f|--force)
 			FORCE=true
-			shift # past argument
+			shift
 			;;
 		-h|--help)
 			show_help
-			shift # past argument
+			shift
+			;;
+		-i|--image_name)
+			IMAGE_NAME="$2"
+			shift 2
 			;;
 		-k|--kernelsources)
 			KERNELSOURCES="$2"
-			shift 2 # past argument
+			shift 2
 			;;
 		-s|--simulate)
 			SIMULATE=true
-			shift # past argument
+			shift
 			;;
 		-v|--verbose)
 			VERBOSE=true
-			shift # past argument
+			shift
 			;;
 		--)
 			shift
@@ -81,6 +85,9 @@ done
 
 # VARIABLES
 # DEFAULT VALUES
+## Die Default Werte werden nach folgendem Muster gesetzt:
+## If '[' der Buchstabe 'x' + der $NAME_DER_VAR == 'x' dann ist die Variable nicht
+## gesetzt, leer. Also setze mit dem Wert=....
 [ x"${ARCH}" = x ] && ARCH="armhf"
 # If output dir is not given as parameter, use the current dir.
 [ x"${OUTPUT_DIR}" = x ] && OUTPUT_DIR="`pwd`"
@@ -95,9 +102,8 @@ done
 [ x"${DEFAULT_HOSTNAME}" = x ] && DEFAULT_HOSTNAME="xmz-mod-touch"
 # Root Password
 [ x"${ROOT_PASSWORD}" = x ] && ROOT_PASSWORD="930440"
-
 # Name of the image, the file is located in script dir,
 # or can given with the "output_dir" parameter
-IMAGE_NAME=xmz-${DISTRIBUTION}-baseimage.img
+[ x"${IMAGE_NAME}" = x ] && IMAGE_NAME="xmz-${DISTRIBUTION}-baseimage.img"
 # Compose the final container name
 CONTAINER_NAME=${DISTRIBUTION}_armhf${SUFFIX}
