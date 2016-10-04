@@ -29,6 +29,16 @@ Afterwards this files are packed into an tar archive.
 ### 11.stage2-bootloader_kernel_and_modules.sh
 ### 12.stage3.sh
 
+# Beispiel Aufrufe der Scripte
+```bash
+./01* -v && \
+./02* -v && \
+./03* -v && \
+./04* -v && \
+./10* -v && \
+./11* -v && \
+./12* -v
+```
 
 # Wiki
 
