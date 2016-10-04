@@ -14,7 +14,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION="0.5.0"-$(git rev-parse --short HEAD)
+SCRIPTVERSION="0.5.2"-$(git rev-parse --short HEAD)
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -25,7 +25,15 @@ source "$(dirname $0)/lib/option_parser.sh" ||:
 
 install_mesa(){
   debug "Install mesa ..."
+  # Wayland darf nicht installiert werden.
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} apt-get install -y libglapi-mesa libgles1-mesa libgles1-mesa-dev libgles2-mesa libgles2-mesa-dev libwayland-egl1-mesa libgles2-mesa"
+}
+
+install_mesa_from_source(){
+  debug "Installiere mesa aus den Quellen ..."
+  run "sudo cp ./lib/mesa-from-source-in-arm-environment.sh ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/mesa-from-source-in-arm-environment.sh"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"chmod +x ./mesa-from-source-in-arm-environment.sh\""
+  #run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"./mesa-from-source-in-arm-environment.sh\""
 }
 
 install_weston(){
@@ -37,7 +45,7 @@ install_weston_from_source(){
   debug "Installiere weston aus den Quellen ..."
   run "sudo cp ./lib/weston-from-source-in-arm-environment.sh ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/root/weston-from-source-in-arm-environment.sh"
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"chmod +x ./weston-from-source-in-arm-environment.sh\""
-  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"./weston-from-source-in-arm-environment.sh\""
+  #run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"./weston-from-source-in-arm-environment.sh\""
 }
 
 install_weston_wallpaper(){
@@ -64,7 +72,7 @@ animation=zoom
 startup-animation=fade
 
 [input-method]
-path=/usr/lib/weston/weston-keyboard
+path=/usr/libexec/weston-keyboard
 
 [libinput]
 enable_tap=true
@@ -88,6 +96,7 @@ RestartSec=10
 User=root
 EnvironmentFile=-/etc/default/weston
 Environment=XDG_RUNTIME_DIR=/run/user/root
+Environment=LD_LIBRARY_PATH=/usr/lib
 ExecStartPre=/bin/mkdir -p /run/user/root
 ExecStartPre=/bin/chmod 0700 /run/user/root
 ExecStart=/usr/bin/weston --tty=1 --log=/var/log/weston.log
@@ -125,7 +134,7 @@ disable_weston_mouse_pointer() {
   debug "Deaktiviere ein input via udev Regel, der Mousezeiger verschwindet somit ..."
   run "cat <<EOF | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/etc/udev/rules.d/disable_mousepointer.rules
 # https://wayland.freedesktop.org/libinput/doc/latest/udev_config.html
-ACTION==\"add|change\", KERNEL==\"event1\", ENV{ID_SEAT}=\"seat1\"
+ACTION==\"add|change\", KERNEL==\"event2\", ENV{ID_SEAT}=\"seat1\"
 EOF"
 }
 
@@ -164,9 +173,9 @@ install_libnanomsg(){
 }
 
 
-
 # Main part of the script
-install_mesa
+# install_mesa
+install_mesa_from_source
 
 #install_weston
 install_weston_from_source
@@ -177,7 +186,7 @@ setup_weston_ini
 
 setup_systemd_weston_unit
 
-create_weston_sh
+# create_weston_sh
 
 disable_weston_mouse_pointer
 
