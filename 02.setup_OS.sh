@@ -11,7 +11,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION="0.5.0"-$(git rev-parse --short HEAD)
+SCRIPTVERSION="0.5.1"-$(git rev-parse --short HEAD)
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -24,7 +24,9 @@ enable_apt_non_free(){
   debug "Aktiviere 'contrib non-free' Apt Repos ..."
   run "cat <<-'EOF' | sudo tee ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH}/etc/apt/sources.list
 # deb http://httpredir.debian.org/debian sid main contrib non-free
-deb http://ftp.de.debian.org/debian sid main contrib non-free
+# deb http://ftp.de.debian.org/debian sid main contrib non-free
+# deb http://ftp.de.debian.org/debian sid main # geht nicht da die WLAN Treiber nur in sind sind
+deb http://ftp.de.debian.org/debian unstable main contrib non-free 
 EOF"
 }
 
