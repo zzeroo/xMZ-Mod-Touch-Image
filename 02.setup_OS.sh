@@ -26,7 +26,7 @@ enable_apt_non_free(){
 # deb http://httpredir.debian.org/debian sid main contrib non-free
 # deb http://ftp.de.debian.org/debian sid main contrib non-free
 # deb http://ftp.de.debian.org/debian sid main # geht nicht da die WLAN Treiber nur in sind sind
-deb http://ftp.de.debian.org/debian unstable main contrib non-free 
+deb http://ftp.de.debian.org/debian unstable main contrib non-free
 EOF"
 }
 
@@ -84,6 +84,12 @@ setup_hostname() {
 install_wlan_tools(){
   debug "Installiere WLAN Subsystem ..."
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} apt-get install -y wpasupplicant net-tools wireless-tools isc-dhcp-client firmware-brcm80211"
+}
+
+install_broadcom_firmware(){
+  debug "Installiere Broadcom Firmware ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} mkdir -p /lib/firmware/brcm/"
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} wget -O /lib/firmware/brcm/brcmfmac43362-sdio.txt https://raw.githubusercontent.com/zzeroo/xMZ-Mod-Touch-Image/master/share/brcmfmac43362-sdio.txt"
 }
 
 setup_wlan(){
