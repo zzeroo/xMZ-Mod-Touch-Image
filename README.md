@@ -31,9 +31,9 @@ In diesem Script werden die Betriebssystem Komponenten wie Netzwerk, SSH, Timezo
 ./02* -v && \
 ./03* -v && \
 ./04* -v && \
-./10* -v -i xmz-sid-test-broadcom-firmware.img && \
-./11* -v -i xmz-sid-test-broadcom-firmware.img && \
-./12* -v -i xmz-sid-test-broadcom-firmware.img
+./10* -v && \
+./11* -v && \
+./12* -v
 ```
 
 # Wiki
