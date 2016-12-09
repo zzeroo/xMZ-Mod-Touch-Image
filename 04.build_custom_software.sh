@@ -50,11 +50,18 @@ EOF\""
   run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} /bin/bash -c \"systemctl enable xmz-mod-touch-server.service\""
 }
 
+install_vim() {
+  debug "Install vim ..."
+  run "sudo systemd-nspawn -D ${CONTAINER_DIR}/${DISTRIBUTION}_${ARCH} --chdir=/root /bin/bash -c \"apt-get install -y vim-scripts\""
+}
+
 
 
 # Main part of the script
 checkout_meta_repo
 
 #build_xmz_server
+
+install_vim
 
 _GENERIC_create_btrfs_snapshot

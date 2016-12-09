@@ -6,7 +6,7 @@ EXAMPLE="./`basename $0` -s"
 #
 # Parameters
 # script verion, imcrement on change
-SCRIPTVERSION="0.5.0"-$(git rev-parse --short HEAD)
+SCRIPTVERSION="0.5.1"-$(git rev-parse --short HEAD)
 
 
 # include generic functions (echo_b(), and debug() and so on)
@@ -46,7 +46,7 @@ copy_in_basic_filesystem(){
 
 copy_in_modules(){
   debug "Kopiere Linux Kernel und Module (nach Partition2) ..."
-  run "sudo cp -r ${KERNELSOURCES}/output/lib ${mnt}/"
+  run "sudo cp -r ${KERNELSOURCES}/output/lib ${mnt}/usr/"
 }
 
 cleanup_mount(){

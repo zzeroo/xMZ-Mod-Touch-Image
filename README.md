@@ -13,22 +13,32 @@ apt-get install systemd-container
 # Reihenfolge und Funktionsbeschreibung
 
 ## 01.build_systemd-nspawn_containers.sh
+Dieses Script installiert mit `debootstrap` ein Root Dateisystem. Dies ist die Basis aller späteren Scripte.
 
-
-### 02.build_development_files.sh
-
-This script must be called into the development systemd-nspawn container.
-The debian OS must be jessie.
-It builds needed tools (sunxi), the linux kernel and the xMZ-Mod-Touch-GUI.
-Afterwards this files are packed into an tar archive.
+### 02.setup_OS.sh
+In diesem Script werden die Betriebssystem Komponenten wie Netzwerk, SSH, Timezonen und locales eingerichtet.
 
 ### 03.setup_production_container.sh
+### 04.build_custom_software.sh
+### 05.mesa_weston_from_source_in_systemd_container.sh
+Dieses Script baut im Systemd Container Mesa und Weston. Incl. aller Abhängigkeiten
 
 
 ### 10.stage1-create_basic_image.sh
 ### 11.stage2-bootloader_kernel_and_modules.sh
 ### 12.stage3.sh
 
+# Beispiel Aufrufe der Scripte
+```bash
+./01* -v && \
+./02* -v && \
+./03* -v && \
+./04* -v && \
+./05* -v && \
+./10* -v && \
+./11* -v && \
+./12* -v
+```
 
 # Wiki
 
