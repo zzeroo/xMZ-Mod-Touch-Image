@@ -19,6 +19,9 @@ Dieses Script installiert mit `debootstrap` ein Root Dateisystem. Dies ist die B
 In diesem Script werden die Betriebssystem Komponenten wie Netzwerk, SSH, Timezonen und locales eingerichtet.
 
 ### 03.setup_production_container.sh
+### 04.build_custom_software.sh
+### 05.mesa_weston_from_source_in_systemd_container.sh
+Dieses Script baut im Systemd Container Mesa und Weston. Incl. aller Abhängigkeiten
 
 
 ### 10.stage1-create_basic_image.sh
@@ -31,6 +34,7 @@ In diesem Script werden die Betriebssystem Komponenten wie Netzwerk, SSH, Timezo
 ./02* -v && \
 ./03* -v && \
 ./04* -v && \
+./05* -v && \
 ./10* -v && \
 ./11* -v && \
 ./12* -v

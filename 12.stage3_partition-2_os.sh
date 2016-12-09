@@ -46,7 +46,7 @@ copy_in_basic_filesystem(){
 
 copy_in_modules(){
   debug "Kopiere Linux Kernel und Module (nach Partition2) ..."
-  run "sudo cp -r ${KERNELSOURCES}/output/lib ${mnt}/"
+  run "sudo cp -r ${KERNELSOURCES}/output/lib ${mnt}/usr/"
 }
 
 cleanup_mount(){
